@@ -3,31 +3,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { store } from '@/store/store';
 import { AuthProvider } from '@/hooks/useAuth';
 import { FacebookPixelTracker } from '@/components/tracking/FacebookPixelTracker';
 import GoogleAnalyticsTracker from '@/components/tracking/GoogleAnalyticsTracker';
 import { TikTokPixelTracker } from '@/components/tracking/TikTokPixelTracker';
-import CartDrawer from '@/components/cart/CartDrawer';
 import FaviconLoader from '@/components/FaviconLoader';
 
-import FashionHomePage from '@/pages/FashionHomePage';
-import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
-import AuthPage from '@/pages/AuthPage';
-import MyAccountPage from '@/pages/MyAccountPage';
-import ProductsPage from '@/pages/ProductsPage';
-import ProductDetailPage from '@/pages/ProductDetailPage';
-import WishlistPage from '@/pages/WishlistPage';
-import AboutPage from '@/pages/AboutPage';
-import ContactPage from '@/pages/ContactPage';
-import CartPage from '@/pages/CartPage';
-import CheckoutPage from '@/pages/CheckoutPage';
-import ProductLandingPage from '@/pages/ProductLandingPage';
 import LandingPage from '@/pages/LandingPage';
-import CottonTarselLandingPage from '@/pages/CottonTarselLandingPage';
-import DigitalTarselLandingPage from '@/pages/DigitalTarselLandingPage';
-import ReyonCottonLandingPage from '@/pages/ReyonCottonLandingPage';
+import AuthPage from '@/pages/AuthPage';
+import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -68,31 +54,12 @@ const App = () => (
             <FacebookPixelTracker />
             <GoogleAnalyticsTracker />
             <TikTokPixelTracker />
-            <CartDrawer />
             <Routes>
-              {/* Main Pages */}
-              <Route path="/" element={<FashionHomePage />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/product/:slug" element={<ProductDetailPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/my-account" element={<MyAccountPage />} />
+              {/* Landing Pages */}
+              <Route path="/lp/:slug" element={<LandingPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
               <Route path="/auth" element={<AuthPage />} />
-              
-              {/* Landing Pages */}
-              <Route path="/step/:slug" element={<ProductLandingPage />} />
-              <Route path="/lp/:slug" element={<LandingPage />} />
-              <Route path="/cotton-tarsel" element={<CottonTarselLandingPage />} />
-               <Route path="/cotton-tarsel-collection" element={<CottonTarselLandingPage />} />
-              <Route path="/digital-tarsel" element={<DigitalTarselLandingPage />} />
-               <Route path="/digital-tarsel-collection" element={<DigitalTarselLandingPage />} />
-              <Route path="/reyon-cotton" element={<ReyonCottonLandingPage />} />
-              <Route path="/reyon-cotton-collection" element={<ReyonCottonLandingPage />} />
-              
+
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
               <Route path="/admin/reports" element={<AdminLayout><AdminReports /></AdminLayout>} />
@@ -118,8 +85,8 @@ const App = () => (
               <Route path="/admin/landing-video-settings" element={<AdminLandingVideoSettings />} />
               <Route path="/admin/botbhai" element={<AdminLayout><AdminBotBhai /></AdminLayout>} />
 
-              {/* Catch all - redirect to main page */}
-              <Route path="*" element={<FashionHomePage />} />
+              {/* Default redirect to admin */}
+              <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
