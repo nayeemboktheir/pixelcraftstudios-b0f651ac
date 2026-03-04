@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { store } from '@/store/store';
 import { AuthProvider } from '@/hooks/useAuth';
 import { FacebookPixelTracker } from '@/components/tracking/FacebookPixelTracker';
@@ -11,9 +11,23 @@ import GoogleAnalyticsTracker from '@/components/tracking/GoogleAnalyticsTracker
 import { TikTokPixelTracker } from '@/components/tracking/TikTokPixelTracker';
 import FaviconLoader from '@/components/FaviconLoader';
 
+import HomePage from '@/pages/HomePage';
+import ProductsPage from '@/pages/ProductsPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import CartPage from '@/pages/CartPage';
+import CheckoutPage from '@/pages/CheckoutPage';
+import WishlistPage from '@/pages/WishlistPage';
+import AboutPage from '@/pages/AboutPage';
+import ContactPage from '@/pages/ContactPage';
+import MyAccountPage from '@/pages/MyAccountPage';
 import LandingPage from '@/pages/LandingPage';
 import AuthPage from '@/pages/AuthPage';
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
+import NotFound from '@/pages/NotFound';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import CartDrawer from '@/components/cart/CartDrawer';
+import SocialChatWidget from '@/components/SocialChatWidget';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -42,6 +56,16 @@ import AdminBotBhai from '@/pages/admin/AdminBotBhai';
 
 const queryClient = new QueryClient();
 
+const StoreLayout = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <Header />
+    <CartDrawer />
+    {children}
+    <Footer />
+    <SocialChatWidget />
+  </>
+);
+
 const App = () => (
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
@@ -55,10 +79,21 @@ const App = () => (
             <GoogleAnalyticsTracker />
             <TikTokPixelTracker />
             <Routes>
+              {/* Store Routes */}
+              <Route path="/" element={<StoreLayout><HomePage /></StoreLayout>} />
+              <Route path="/products" element={<StoreLayout><ProductsPage /></StoreLayout>} />
+              <Route path="/products/:slug" element={<StoreLayout><ProductDetailPage /></StoreLayout>} />
+              <Route path="/cart" element={<StoreLayout><CartPage /></StoreLayout>} />
+              <Route path="/checkout" element={<StoreLayout><CheckoutPage /></StoreLayout>} />
+              <Route path="/wishlist" element={<StoreLayout><WishlistPage /></StoreLayout>} />
+              <Route path="/about" element={<StoreLayout><AboutPage /></StoreLayout>} />
+              <Route path="/contact" element={<StoreLayout><ContactPage /></StoreLayout>} />
+              <Route path="/my-account" element={<StoreLayout><MyAccountPage /></StoreLayout>} />
+              <Route path="/order-confirmation" element={<StoreLayout><OrderConfirmationPage /></StoreLayout>} />
+              <Route path="/auth" element={<AuthPage />} />
+
               {/* Landing Pages */}
               <Route path="/lp/:slug" element={<LandingPage />} />
-              <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-              <Route path="/auth" element={<AuthPage />} />
 
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
@@ -85,8 +120,8 @@ const App = () => (
               <Route path="/admin/landing-video-settings" element={<AdminLandingVideoSettings />} />
               <Route path="/admin/botbhai" element={<AdminLayout><AdminBotBhai /></AdminLayout>} />
 
-              {/* Default redirect to admin */}
-              <Route path="*" element={<Navigate to="/admin" replace />} />
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
