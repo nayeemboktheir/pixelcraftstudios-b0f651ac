@@ -673,14 +673,16 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
 
                     {/* Variation rows */}
                     <div className="divide-y">
-                      {product.variations.map((variation) => {
+                      {product.variations.map((variation, varIdx) => {
                         const sel = variantSelections[variation.id] || { quantity: 0, sizeId: '' };
+                        // Use corresponding image by index, fallback to first image
+                        const variationImage = product.images?.[varIdx] || product.images?.[0] || '';
                         return (
                           <div key={variation.id} className="flex items-center gap-3 p-3 md:p-4">
                             {/* Variation image or product fallback */}
                             <div className="w-12 h-14 md:w-14 md:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                               <img 
-                                src={product.images?.[0] || ''} 
+                                src={variationImage} 
                                 alt={variation.name}
                                 className="w-full h-full object-cover"
                               />
