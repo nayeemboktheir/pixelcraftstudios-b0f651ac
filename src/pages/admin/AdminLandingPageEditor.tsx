@@ -129,7 +129,10 @@ const AdminLandingPageEditor = () => {
           .insert([payload])
           .select()
           .single();
-        if (error) throw error;
+        if (error) {
+          console.error("Insert error:", error);
+          throw new Error(error.message || "Failed to create landing page");
+        }
         return result;
       } else {
         const { data: result, error } = await supabase
@@ -138,18 +141,23 @@ const AdminLandingPageEditor = () => {
           .eq("id", id)
           .select()
           .single();
-        if (error) throw error;
+        if (error) {
+          console.error("Update error:", error);
+          throw new Error(error.message || "Failed to update landing page");
+        }
         return result;
       }
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["admin-landing-pages"] });
+      queryClient.invalidateQueries({ queryKey: ["landing-page", id] });
       toast.success(isNew ? "Landing page created!" : "Landing page saved!");
       if (isNew && result?.id) {
-        navigate(`/admin/landing-pages/${result.id}`);
+        navigate(`/admin/landing-pages/${result.id}`, { replace: true });
       }
     },
     onError: (error: Error) => {
+      console.error("Save mutation error:", error);
       toast.error(error.message || "Failed to save landing page");
     },
   });
