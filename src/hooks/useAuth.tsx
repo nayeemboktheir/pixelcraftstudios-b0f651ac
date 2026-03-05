@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const initializedRef = useRef(false);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkAdminRole = async (userId: string): Promise<boolean> => {
     try {
       const { data } = await supabase
         .from('user_roles')
@@ -30,10 +30,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('role', 'admin')
         .maybeSingle();
       
-      setIsAdmin(!!data);
+      const isAdminUser = !!data;
+      setIsAdmin(isAdminUser);
+      return isAdminUser;
     } catch (err) {
       console.error('Error checking admin role:', err);
       setIsAdmin(false);
+      return false;
     }
   };
 
@@ -62,10 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Use setTimeout to avoid blocking the auth state change callback
-          setTimeout(async () => {
-            await checkAdminRole(session.user.id);
-          }, 0);
+          await checkAdminRole(session.user.id);
         } else {
           setIsAdmin(false);
         }
