@@ -338,6 +338,12 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
       selectedItems.push({ ...selected, quantity: orderForm.quantity });
     }
 
+    // If pack selected but no color/size chosen, still require variant selection
+    if (packOption && selectedItems.length === 0) {
+      toast.error("কালার ও সাইজ সিলেক্ট করুন");
+      return;
+    }
+
     const isFreeDelivery = !!(settings as any).freeDelivery;
     const shippingCost = isFreeDelivery ? 0 : SHIPPING_RATES[shippingZone];
     
@@ -348,22 +354,14 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
     const total = subtotal + shippingCost;
     const totalQuantity = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
 
-    // For pack orders with no variant selections, create a custom item
+    // Always use variant details for order items
     const orderItems = selectedItems.length > 0 
       ? selectedItems.map(item => ({
           productId: item.product.id,
           variationId: item.variation.id,
           quantity: item.quantity,
         }))
-      : packOption 
-        ? [{
-            productId: products[0]?.id || 'pack',
-            variationId: undefined as string | undefined,
-            quantity: 1,
-            productName: packOption.label,
-            price: packOption.price,
-          }]
-        : [];
+      : [];
 
     setIsSubmitting(true);
     try {
@@ -391,9 +389,7 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
           customerName: orderForm.name,
           phone: orderForm.phone,
           total,
-          items: packOption && selectedItems.length === 0
-            ? [{ productName: packOption.label, price: packOption.price, quantity: 1 }]
-            : selectedItems.map(item => ({
+          items: selectedItems.map(item => ({
                 productId: item.product.id,
                 productName: `${item.product.name} - ${item.variation.name}`,
                 price: item.variation.price,
@@ -679,14 +675,16 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
       const hasPackOptions = settings.packOptions && settings.packOptions.length > 0;
       const selectedPackOption = hasPackOptions ? settings.packOptions?.find(p => p.id === selectedPack) : null;
       
-      // If pack options exist, use pack price; otherwise use variant-based pricing
+      // If pack option is selected AND variants are selected, use pack price
+      // If pack option selected but no variants yet, use pack price  
+      // Otherwise use variant-based pricing
       const subtotal = selectedPackOption 
         ? selectedPackOption.price 
         : selectedItems.reduce((sum, item) => sum + item.variation.price * item.quantity, 0);
       const shippingCost = settings.freeDelivery ? 0 : SHIPPING_RATES[shippingZone];
       const total = subtotal + shippingCost;
       const totalQuantity = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
-      const hasSelections = hasPackOptions ? !!selectedPack : selectedItems.length > 0;
+      const hasSelections = hasPackOptions ? (!!selectedPack && (selectedItems.length > 0 || !selectedPackOption)) : selectedItems.length > 0;
 
       // Default size options
       const sizeOpts = settings.sizeOptions || ['S', 'M', 'L', 'XL', '2XL', '3XL'];
@@ -905,8 +903,7 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
                 <div className="bg-gray-50 rounded-xl p-4 mt-6">
                   <h3 className="font-semibold mb-4">Your order</h3>
                   <div className="space-y-3">
-                    {/* Pack-based summary */}
-                    {selectedPackOption && selectedItems.length === 0 && (
+                    {selectedPackOption && (
                       <div className="flex justify-between items-center pb-3 border-b">
                         <div>
                           <p className="font-medium">{selectedPackOption.label}</p>
@@ -917,7 +914,7 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
                         <span className="font-medium">৳ {selectedPackOption.price.toLocaleString()}</span>
                       </div>
                     )}
-                    {/* Variant-based items */}
+                    {/* Variant-based items (show as details, not pricing when pack selected) */}
                     {selectedItems.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center pb-3 border-b last:border-b-0">
                         <div className="flex items-center gap-3">
@@ -936,7 +933,9 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
                             </p>
                           </div>
                         </div>
-                        <span className="font-medium text-sm">৳ {(item.variation.price * item.quantity).toLocaleString()}</span>
+                        {!selectedPackOption && (
+                          <span className="font-medium text-sm">৳ {(item.variation.price * item.quantity).toLocaleString()}</span>
+                        )}
                       </div>
                     ))}
                     <div className="flex justify-between text-sm">
