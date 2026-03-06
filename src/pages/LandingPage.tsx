@@ -1544,7 +1544,8 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
       const settings = section.settings as {
         title: string;
         problems: Array<{ icon: string; text?: string; title?: string }>;
-        cta: string;
+        cta?: string;
+        footerText?: string;
         backgroundColor: string;
         textColor: string;
       };
@@ -1567,8 +1568,8 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
                 </div>
               ))}
             </div>
-            {settings.cta && (
-              <p className="text-xl font-medium text-primary">👉 {settings.cta}</p>
+            {(settings.cta || settings.footerText) && (
+              <p className="text-xl font-medium text-primary">👉 {settings.cta || settings.footerText}</p>
             )}
           </div>
         </section>
