@@ -795,8 +795,8 @@ export const SectionPreview = ({ section, theme }: SectionPreviewProps) => {
               <div key={i} className="flex items-start gap-4 p-4 bg-green-50 rounded-lg">
                 <span className="text-2xl" style={{ color: settings.checkColor }}>✓</span>
                 <div>
-                  <h3 className="font-bold">{b.title}</h3>
-                  <p className="text-sm opacity-70">{b.description}</p>
+                  <h3 className="font-bold" style={{ color: '#0f172a' }}>{b.title}</h3>
+                  <p className="text-sm" style={{ color: '#334155' }}>{b.description}</p>
                 </div>
               </div>
             ))}
