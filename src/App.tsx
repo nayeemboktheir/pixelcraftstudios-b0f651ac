@@ -17,7 +17,7 @@ import AuthPage from '@/pages/AuthPage';
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
 import HomePage from '@/pages/HomePage';
 import FashionHomePage from '@/pages/FashionHomePage';
-import EbookLandingPage from '@/pages/EbookLandingPage';
+// EbookLandingPage is now database-driven via /lp/ebook
 import ProductsPage from '@/pages/ProductsPage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
 import CartPage from '@/pages/CartPage';
