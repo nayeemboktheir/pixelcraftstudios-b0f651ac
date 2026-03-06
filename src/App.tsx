@@ -15,6 +15,17 @@ import CheckoutPage from '@/pages/CheckoutPage';
 import LandingPage from '@/pages/LandingPage';
 import AuthPage from '@/pages/AuthPage';
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
+import HomePage from '@/pages/HomePage';
+import ProductsPage from '@/pages/ProductsPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import CartPage from '@/pages/CartPage';
+import AboutPage from '@/pages/AboutPage';
+import ContactPage from '@/pages/ContactPage';
+import WishlistPage from '@/pages/WishlistPage';
+import MyAccountPage from '@/pages/MyAccountPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import NotFound from '@/pages/NotFound';
+import StorefrontLayout from '@/components/layout/StorefrontLayout';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -56,6 +67,17 @@ const App = () => (
             <GoogleAnalyticsTracker />
             <TikTokPixelTracker />
             <Routes>
+              {/* Storefront Routes */}
+              <Route path="/" element={<StorefrontLayout><HomePage /></StorefrontLayout>} />
+              <Route path="/products" element={<StorefrontLayout><ProductsPage /></StorefrontLayout>} />
+              <Route path="/products/:slug" element={<StorefrontLayout><ProductDetailPage /></StorefrontLayout>} />
+              <Route path="/cart" element={<StorefrontLayout><CartPage /></StorefrontLayout>} />
+              <Route path="/about" element={<StorefrontLayout><AboutPage /></StorefrontLayout>} />
+              <Route path="/contact" element={<StorefrontLayout><ContactPage /></StorefrontLayout>} />
+              <Route path="/wishlist" element={<StorefrontLayout><WishlistPage /></StorefrontLayout>} />
+              <Route path="/my-account" element={<StorefrontLayout><MyAccountPage /></StorefrontLayout>} />
+              <Route path="/reset-password" element={<StorefrontLayout><ResetPasswordPage /></StorefrontLayout>} />
+
               {/* Checkout & Auth */}
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
@@ -86,12 +108,8 @@ const App = () => (
               <Route path="/admin/shop-settings" element={<AdminLayout><AdminShopSettings /></AdminLayout>} />
               <Route path="/admin/site-settings" element={<AdminLayout><AdminSiteSettings /></AdminLayout>} />
               <Route path="/admin/home-page-edit" element={<AdminLayout><AdminHomePageEdit /></AdminLayout>} />
-              
-              
 
-              {/* Default redirect to admin */}
-              <Route path="/" element={<Navigate to="/admin" replace />} />
-              <Route path="*" element={<Navigate to="/admin" replace />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
