@@ -1646,8 +1646,8 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
                   key={i}
                   className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100 shadow-sm"
                 >
-                  <h3 className="font-bold text-gray-800">{cleanText(b.title)}</h3>
-                  {b.description && <p className="text-sm opacity-80 mt-1">{cleanText(b.description)}</p>}
+                  <h3 className="font-bold" style={{ color: settings.textColor || '#1f2937' }}>{cleanText(b.title)}</h3>
+                  {b.description && <p className="text-sm opacity-80 mt-1" style={{ color: settings.textColor || '#1f2937' }}>{cleanText(b.description)}</p>}
                 </div>
               ))}
             </div>
