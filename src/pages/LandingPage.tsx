@@ -1543,7 +1543,7 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
     case "problem-section": {
       const settings = section.settings as {
         title: string;
-        problems: Array<{ icon: string; text: string }>;
+        problems: Array<{ icon: string; text?: string; title?: string }>;
         cta: string;
         backgroundColor: string;
         textColor: string;
@@ -1563,7 +1563,7 @@ const SectionRenderer = ({ section, theme, slug }: SectionRendererProps) => {
               {(settings.problems || []).map((p, i) => (
                 <div key={i} className="flex items-start gap-4 p-6 bg-red-50 rounded-xl text-left">
                   <span className="text-3xl">{p.icon}</span>
-                  <p className="text-lg">{p.text}</p>
+                  <p className="text-lg">{p.text || p.title}</p>
                 </div>
               ))}
             </div>
