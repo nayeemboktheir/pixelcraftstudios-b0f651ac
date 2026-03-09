@@ -1,5 +1,5 @@
 import { useState } from "react";
-import pixelcraftLogo from "@/assets/pixelcraft-logo.jpeg";
+import pcsLogo from "@/assets/pcs-logo.png";
 import { motion } from "framer-motion";
 import {
   BookOpen,
