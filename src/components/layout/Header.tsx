@@ -310,7 +310,7 @@ const Header = () => {
                 <li>
                   <Link 
                     to="/" 
-                    className="block py-2 text-foreground hover:text-primary font-medium"
+                    className="block py-2 text-primary-foreground hover:text-accent font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Home
