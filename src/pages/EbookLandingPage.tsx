@@ -378,9 +378,7 @@ export default function EbookLandingPage() {
               </div>
 
               <div className="flex items-center justify-center gap-4 mb-6">
-                <span className="text-4xl font-bold text-accent font-display">৳৪৯৯</span>
-                <span className="text-xl text-white/40 line-through">৳৯৯৯</span>
-                <Badge className="bg-accent text-accent-foreground">৫০% ছাড়</Badge>
+                <span className="text-4xl font-bold text-accent font-display">৳১৯৯</span>
               </div>
 
               <div className="space-y-3 mb-8 text-left max-w-sm mx-auto">
