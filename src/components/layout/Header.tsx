@@ -287,7 +287,7 @@ const Header = () => {
             <li>
               <Link 
                 to="/contact" 
-                className="text-foreground hover:text-primary font-medium transition-colors"
+                className="text-primary-foreground hover:text-accent font-medium transition-colors"
               >
                 Contact Us
               </Link>
