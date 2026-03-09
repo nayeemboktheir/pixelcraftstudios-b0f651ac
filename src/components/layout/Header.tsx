@@ -303,7 +303,7 @@ const Header = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border bg-background"
+            className="md:hidden border-t border-primary-foreground/20 bg-primary"
           >
             <nav className="container-custom py-4">
               <ul className="space-y-2">
