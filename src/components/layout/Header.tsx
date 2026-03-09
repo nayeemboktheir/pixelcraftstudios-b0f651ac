@@ -271,7 +271,7 @@ const Header = () => {
             <li>
               <Link 
                 to="/products" 
-                className="text-foreground hover:text-primary font-medium transition-colors"
+                className="text-primary-foreground hover:text-accent font-medium transition-colors"
               >
                 Products
               </Link>
