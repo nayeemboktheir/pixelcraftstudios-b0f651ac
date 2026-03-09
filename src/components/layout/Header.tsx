@@ -207,7 +207,7 @@ const Header = () => {
               </div>
             ) : (
               <Link to="/auth">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:text-accent hover:bg-primary-foreground/10">
                   <User className="h-5 w-5" />
                 </Button>
               </Link>
