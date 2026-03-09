@@ -135,7 +135,7 @@ const Header = () => {
           <div className="flex items-center gap-2 md:gap-4">
             {/* Mobile Search Toggle */}
             <Button 
-              variant="ghost" 
+              variant="ghost"
               size="icon" 
               className="md:hidden"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
