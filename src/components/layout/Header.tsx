@@ -145,7 +145,7 @@ const Header = () => {
 
             {/* Wishlist */}
             <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-primary-foreground hover:text-accent hover:bg-primary-foreground/10">
                 <Heart className="h-5 w-5" />
                 {wishlistItems.length > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-secondary text-secondary-foreground text-xs flex items-center justify-center font-bold">
