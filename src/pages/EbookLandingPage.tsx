@@ -554,10 +554,14 @@ export default function EbookLandingPage() {
               <Button
                 size="lg"
                 onClick={handleOrder}
+                disabled={isSubmitting}
                 className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full text-lg font-bold py-6 shadow-lg"
               >
-                <ShoppingBag className="mr-2 w-5 h-5" />
-                এখনই অর্ডার করুন — ৳১৯৯
+                {isSubmitting ? (
+                  <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> অর্ডার হচ্ছে...</>
+                ) : (
+                  <><ShoppingBag className="mr-2 w-5 h-5" /> এখনই অর্ডার করুন — ৳১৯৯</>
+                )}
               </Button>
               <p className="text-white/40 text-sm mt-4">🔒 সম্পূর্ণ নিরাপদ পেমেন্ট</p>
             </div>
