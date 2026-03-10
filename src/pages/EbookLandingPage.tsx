@@ -127,8 +127,10 @@ export default function EbookLandingPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
+      {/* Header + Hero wrapper for seamless gradient */}
+      <div style={{ background: "var(--gradient-hero)" }}>
       {/* Header */}
-      <header className="sticky top-0 z-50" style={{ background: "var(--gradient-hero)" }}>
+      <header className="sticky top-0 z-50 bg-transparent backdrop-blur-sm">
         <div className="container-custom py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center">
@@ -138,17 +140,17 @@ export default function EbookLandingPage() {
             <nav className="hidden md:flex items-center gap-6">
               <a
                 href="#features"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors"
               >
                 ফিচার্স
               </a>
               <a
                 href="#reviews"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-white/70 hover:text-white transition-colors"
               >
                 রিভিউ
               </a>
-              <a href="#faq" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              <a href="#faq" className="text-sm font-medium text-white/70 hover:text-white transition-colors">
                 FAQ
               </a>
             </nav>
@@ -174,7 +176,7 @@ export default function EbookLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "var(--gradient-hero)" }}>
+      <section className="relative overflow-hidden py-16 md:py-24">
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -247,6 +249,7 @@ export default function EbookLandingPage() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Problem Section */}
       <section className="py-16 bg-secondary/30">
