@@ -78,6 +78,7 @@ export default function EbookLandingPage() {
             address: `Email: ${billingForm.email.trim()}`,
           },
           orderSource: 'landing_page',
+          shippingCostOverride: 0,
         },
       });
 
