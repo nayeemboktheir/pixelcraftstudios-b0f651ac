@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Search,
@@ -8,27 +7,69 @@ import {
   Heart,
   User,
   Menu,
-  X,
-  ChevronDown,
   LogOut,
+  Home,
+  Package,
+  Info,
+  Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectCartCount, toggleCart } from '@/store/slices/cartSlice';
 import { selectWishlistItems } from '@/store/slices/wishlistSlice';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { categories } from '@/data/mockData';
 import defaultLogo from '@/assets/site-logo.png';
 
+interface MenuItem {
+  title: string;
+  url: string;
+  description?: string;
+  icon?: React.ReactNode;
+  items?: MenuItem[];
+}
+
+const menu: MenuItem[] = [
+  { title: 'Home', url: '/' },
+  { title: 'Products', url: '/products' },
+  { title: 'About Us', url: '/about' },
+  { title: 'Contact', url: '/contact' },
+];
+
 const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [openSearch, setOpenSearch] = useState(false);
   const navigate = useNavigate();
-  
+
   const cartCount = useAppSelector(selectCartCount);
   const wishlistItems = useAppSelector(selectWishlistItems);
   const dispatch = useAppDispatch();
@@ -52,7 +93,6 @@ const Header = () => {
 
       return settingsMap;
     },
-    // Don't keep stale for minutes — we want header to reflect admin changes quickly
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
@@ -61,38 +101,109 @@ const Header = () => {
   const siteName = headerSettings?.site_name || 'Sheikhul Fashions';
   const siteLogo = headerSettings?.site_logo || headerSettings?.shop_logo_url || defaultLogo;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-      setIsSearchOpen(false);
+  const handleSearchSelect = (value: string) => {
+    navigate(`/products?search=${encodeURIComponent(value)}`);
+    setOpenSearch(false);
+  };
+
+  const renderMenuItem = (item: MenuItem) => {
+    if (item.items) {
+      return (
+        <NavigationMenuItem key={item.title}>
+          <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="w-80 p-3">
+              <li className="grid gap-1">
+                {item.items.map((subItem) => (
+                  <NavigationMenuLink key={subItem.title} asChild>
+                    <Link
+                      to={subItem.url}
+                      className="flex select-none gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {subItem.icon}
+                      <div>
+                        <div className="text-sm font-semibold">{subItem.title}</div>
+                        {subItem.description && (
+                          <p className="text-sm leading-snug text-muted-foreground">
+                            {subItem.description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  </NavigationMenuLink>
+                ))}
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      );
     }
+
+    return (
+      <NavigationMenuItem key={item.title}>
+        <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+          <Link to={item.url}>{item.title}</Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
+    );
+  };
+
+  const renderMobileMenuItem = (item: MenuItem) => {
+    if (item.items) {
+      return (
+        <AccordionItem key={item.title} value={item.title} className="border-b-0">
+          <AccordionTrigger className="py-0 font-semibold hover:no-underline">
+            {item.title}
+          </AccordionTrigger>
+          <AccordionContent>
+            {item.items.map((subItem) => (
+              <Link
+                key={subItem.title}
+                to={subItem.url}
+                className="flex select-none gap-4 rounded-md p-3 leading-none outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                {subItem.icon}
+                <div>
+                  <div className="text-sm font-semibold">{subItem.title}</div>
+                  {subItem.description && (
+                    <p className="text-sm leading-snug text-muted-foreground">
+                      {subItem.description}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      );
+    }
+
+    return (
+      <Link
+        key={item.title}
+        to={item.url}
+        className="font-semibold py-2 block"
+      >
+        {item.title}
+      </Link>
+    );
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 py-4">
+    <section className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
       <div className="container-custom">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
-            {siteLogo ? (
+        {/* Desktop Navbar */}
+        <nav className="hidden justify-between lg:flex py-3">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex items-center gap-2">
               <img
                 src={siteLogo}
                 alt={siteName || 'Site Logo'}
-                className="h-10 w-auto object-contain"
+                className="h-9 w-auto object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   if (target.src !== defaultLogo) {
@@ -100,77 +211,32 @@ const Header = () => {
                   }
                 }}
               />
-            ) : (
-              <span className="text-base md:text-lg font-semibold text-primary-foreground leading-none">
-                {siteName}
-              </span>
-            )}
-          </Link>
+            </Link>
+            <div className="flex items-center">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {menu.map((item) => renderMenuItem(item))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
+          </div>
 
-          {/* Center Nav Pill - Desktop */}
-          <nav className="hidden md:block">
-            <ul className={`flex items-center gap-1 rounded-full px-2 py-1.5 transition-all duration-300 ${
-              isScrolled 
-                ? 'bg-primary/90 backdrop-blur-md shadow-lg' 
-                : 'bg-primary/60 backdrop-blur-sm'
-            }`}>
-              {[
-                { to: '/', label: 'Home' },
-                { to: '/products', label: 'Products' },
-                { to: '/about', label: 'About Us' },
-                { to: '/contact', label: 'Contact' },
-              ].map(link => (
-                <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    className="block px-4 py-1.5 rounded-full text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-1 md:gap-2">
-            {/* Mobile Search Toggle */}
+          <div className="flex items-center gap-2">
+            {/* Search Button */}
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
-              className="md:hidden text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={() => setOpenSearch(true)}
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4" />
             </Button>
-
-            {/* Desktop Search */}
-            <form onSubmit={handleSearch} className="hidden md:flex">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="খুঁজুন..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-40 lg:w-52 h-9 rounded-full bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm pr-9"
-                />
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 text-primary-foreground/70 hover:text-primary-foreground hover:bg-transparent"
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
-            </form>
 
             {/* Wishlist */}
             <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="relative h-9 w-9 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full">
+              <Button variant="outline" size="icon" className="relative">
                 <Heart className="h-4 w-4" />
                 {wishlistItems.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
                     {wishlistItems.length}
                   </span>
                 )}
@@ -179,23 +245,23 @@ const Header = () => {
 
             {/* Cart */}
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
-              className="relative h-9 w-9 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full"
+              className="relative"
               onClick={() => dispatch(toggleCart())}
             >
               <ShoppingCart className="h-4 w-4" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
+                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </Button>
 
-            {/* Account */}
+            {/* Auth */}
             {user ? (
               <div className="relative group">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full">
+                <Button variant="outline" size="icon">
                   <User className="h-4 w-4" />
                 </Button>
                 <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -220,83 +286,143 @@ const Header = () => {
               </div>
             ) : (
               <Link to="/auth">
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full">
-                  <User className="h-4 w-4" />
-                </Button>
+                <Button variant="ghost">Sign in</Button>
               </Link>
             )}
+          </div>
+        </nav>
 
-            {/* Mobile Menu Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden h-9 w-9 text-primary-foreground hover:bg-primary-foreground/10 rounded-full"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+        {/* Mobile Navbar */}
+        <div className="block lg:hidden">
+          <div className="flex items-center justify-between py-3">
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src={siteLogo}
+                alt={siteName || 'Site Logo'}
+                className="h-8 w-auto object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== defaultLogo) {
+                    target.src = defaultLogo;
+                  }
+                }}
+              />
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {/* Search mobile */}
+              <Button variant="outline" size="icon" onClick={() => setOpenSearch(true)}>
+                <Search className="h-4 w-4" />
+              </Button>
+
+              {/* Cart mobile */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative"
+                onClick={() => dispatch(toggleCart())}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+
+              {/* Menu Sheet */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <Link to="/" className="flex items-center gap-2">
+                        <img
+                          src={siteLogo}
+                          alt={siteName || 'Site Logo'}
+                          className="h-8 w-auto object-contain"
+                        />
+                      </Link>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="my-8 flex flex-col gap-4">
+                    <Accordion type="single" collapsible className="flex w-full flex-col gap-4">
+                      {menu.map((item) => renderMobileMenuItem(item))}
+                    </Accordion>
+
+                    <div className="border-t pt-4">
+                      <div className="flex flex-col gap-2">
+                        <Link to="/wishlist" className="flex items-center gap-2 py-2 text-sm font-medium">
+                          <Heart className="h-4 w-4" />
+                          Wishlist
+                          {wishlistItems.length > 0 && (
+                            <span className="ml-auto h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-bold">
+                              {wishlistItems.length}
+                            </span>
+                          )}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      {user ? (
+                        <div className="flex flex-col gap-2">
+                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                          {isAdmin && (
+                            <Link to="/admin" className="text-sm font-medium py-1">
+                              অ্যাডমিন প্যানেল
+                            </Link>
+                          )}
+                          <Link to="/my-account" className="text-sm font-medium py-1">
+                            আমার অর্ডার
+                          </Link>
+                          <button onClick={handleSignOut} className="flex items-center gap-2 text-sm text-destructive py-1">
+                            <LogOut className="h-4 w-4" />
+                            লগআউট
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3">
+                          <Link to="/auth">
+                            <Button variant="outline" className="w-full">Sign in</Button>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
-
-        {/* Mobile Search */}
-        <AnimatePresence>
-          {isSearchOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden mt-4"
-            >
-              <form onSubmit={handleSearch} className="relative">
-                <Input
-                  type="text"
-                  placeholder="পণ্য খুঁজুন..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-12 rounded-full"
-                />
-                <Button type="submit" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2">
-                  <Search className="h-5 w-5" />
-                </Button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden mt-2 mx-4"
-          >
-            <nav className="bg-primary/90 backdrop-blur-md rounded-2xl p-4 shadow-lg">
-              <ul className="space-y-1">
-                {[
-                  { to: '/', label: 'Home' },
-                  { to: '/products', label: 'Products' },
-                  { to: '/about', label: 'About Us' },
-                  { to: '/contact', label: 'Contact' },
-                ].map(link => (
-                  <li key={link.to}>
-                    <Link
-                      to={link.to}
-                      className="block py-2.5 px-4 rounded-xl text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 font-medium transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+      {/* Search Dialog */}
+      <CommandDialog open={openSearch} onOpenChange={setOpenSearch}>
+        <CommandInput placeholder="পণ্য খুঁজুন..." />
+        <CommandList>
+          <CommandEmpty>কোন ফলাফল পাওয়া যায়নি।</CommandEmpty>
+          <CommandGroup heading="Quick Links">
+            <CommandItem onSelect={() => handleSearchSelect('')}>
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </CommandItem>
+            <CommandItem onSelect={() => { navigate('/products'); setOpenSearch(false); }}>
+              <Package className="mr-2 h-4 w-4" />
+              All Products
+            </CommandItem>
+            <CommandItem onSelect={() => { navigate('/contact'); setOpenSearch(false); }}>
+              <Phone className="mr-2 h-4 w-4" />
+              Contact
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
+    </section>
   );
 };
 
