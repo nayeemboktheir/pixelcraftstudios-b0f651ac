@@ -128,12 +128,11 @@ export default function EbookLandingPage() {
   return (
     <div className="min-h-screen bg-background font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10" style={{ background: "var(--gradient-hero)" }}>
+      <header className="sticky top-0 z-50" style={{ background: "var(--gradient-hero)" }}>
         <div className="container-custom py-3">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/" className="flex items-center">
               <img src={pcsLogo} alt="Pixelcraft Studio" className="h-10 w-auto rounded-lg" />
-              <span className="text-lg font-display font-bold text-foreground hidden sm:block">Pixelcraft Studio</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
