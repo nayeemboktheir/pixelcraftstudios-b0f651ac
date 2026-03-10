@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import pcsLogo from "@/assets/pcs-logo.png";
 import { motion } from "framer-motion";
 import {
@@ -23,6 +25,7 @@ import {
   User,
   Menu,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,10 +35,12 @@ import ebookCover from "@/assets/ebook-cover.jpeg";
 
 export default function EbookLandingPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [billingForm, setBillingForm] = useState({ name: '', email: '', phone: '' });
   const [billingErrors, setBillingErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,7 +48,7 @@ export default function EbookLandingPage() {
     setBillingErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleOrder = () => {
+  const handleOrder = useCallback(async () => {
     const errors: Record<string, string> = {};
     if (!billingForm.name.trim()) errors.name = 'নাম দিন';
     if (!billingForm.email.trim()) errors.email = 'ইমেইল দিন';
@@ -54,8 +59,58 @@ export default function EbookLandingPage() {
       setBillingErrors(errors);
       return;
     }
-    navigate("/checkout", { state: { billing: billingForm } });
-  };
+
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('place-order', {
+        body: {
+          userId: null,
+          items: [{
+            productId: 'ebook-ai-prompt-mastery',
+            quantity: 1,
+            productName: 'AI Prompt Mastery - Complete Guide (PDF)',
+            productImage: null,
+            price: 199,
+          }],
+          shipping: {
+            name: billingForm.name.trim(),
+            phone: billingForm.phone.trim() || '01300000000',
+            address: `Email: ${billingForm.email.trim()}`,
+          },
+          orderSource: 'landing_page',
+          shippingCostOverride: 0,
+        },
+      });
+
+      if (error || data?.error) {
+        throw new Error(data?.error || 'অর্ডার করতে সমস্যা হয়েছে');
+      }
+
+      navigate('/order-confirmation', {
+        state: {
+          orderNumber: data.orderNumber,
+          customerName: billingForm.name,
+          phone: billingForm.phone || undefined,
+          total: data.total,
+          items: [{
+            productId: 'ebook-ai-prompt-mastery',
+            productName: 'AI Prompt Mastery',
+            price: 199,
+            quantity: 1,
+          }],
+          fromLandingPage: true,
+        },
+      });
+    } catch (err: any) {
+      toast({
+        title: 'অর্ডার ব্যর্থ',
+        description: err.message || 'আবার চেষ্টা করুন',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [billingForm, navigate, toast]);
 
   const features = [
     {
@@ -500,10 +555,14 @@ export default function EbookLandingPage() {
               <Button
                 size="lg"
                 onClick={handleOrder}
+                disabled={isSubmitting}
                 className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-full text-lg font-bold py-6 shadow-lg"
               >
-                <ShoppingBag className="mr-2 w-5 h-5" />
-                এখনই অর্ডার করুন — ৳১৯৯
+                {isSubmitting ? (
+                  <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> অর্ডার হচ্ছে...</>
+                ) : (
+                  <><ShoppingBag className="mr-2 w-5 h-5" /> এখনই অর্ডার করুন — ৳১৯৯</>
+                )}
               </Button>
               <p className="text-white/40 text-sm mt-4">🔒 সম্পূর্ণ নিরাপদ পেমেন্ট</p>
             </div>
