@@ -348,6 +348,11 @@ const CheckoutPage = () => {
     setShippingForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBillingForm(prev => ({ ...prev, [name]: value }));
+  };
+
   const validateForm = (): boolean => {
     if (!shippingForm.name.trim()) {
       toast({ title: "Name is required", variant: "destructive" });
