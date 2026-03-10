@@ -522,6 +522,54 @@ const CheckoutPage = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Forms */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Billing Information */}
+              <div className="bg-card rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="font-display text-xl font-semibold text-foreground">Billing Information</h2>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billing-name">Full Name *</Label>
+                    <Input
+                      id="billing-name"
+                      name="name"
+                      placeholder="Enter your full name"
+                      value={billingForm.name}
+                      onChange={handleBillingChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-email">Email</Label>
+                      <Input
+                        id="billing-email"
+                        name="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={billingForm.email}
+                        onChange={handleBillingChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-phone">Phone Number *</Label>
+                      <Input
+                        id="billing-phone"
+                        name="phone"
+                        placeholder="01XXX-XXXXXX"
+                        value={billingForm.phone}
+                        onChange={handleBillingChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Shipping Information */}
               <div className="bg-card rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
