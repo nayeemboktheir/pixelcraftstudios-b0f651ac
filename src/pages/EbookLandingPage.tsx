@@ -46,9 +46,9 @@ export default function EbookLandingPage() {
   const handleOrder = () => {
     const errors: Record<string, string> = {};
     if (!billingForm.name.trim()) errors.name = 'নাম দিন';
-    if (!billingForm.phone.trim()) errors.phone = 'ফোন নম্বর দিন';
-    else if (!/^01[3-9]\d{8}$/.test(billingForm.phone.trim())) errors.phone = 'সঠিক ফোন নম্বর দিন';
-    if (billingForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingForm.email)) errors.email = 'সঠিক ইমেইল দিন';
+    if (!billingForm.email.trim()) errors.email = 'ইমেইল দিন';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingForm.email)) errors.email = 'সঠিক ইমেইল দিন';
+    if (billingForm.phone && !/^01[3-9]\d{8}$/.test(billingForm.phone.trim())) errors.phone = 'সঠিক ফোন নম্বর দিন';
 
     if (Object.keys(errors).length > 0) {
       setBillingErrors(errors);
@@ -477,7 +477,7 @@ export default function EbookLandingPage() {
                   <input
                     type="email"
                     name="email"
-                    placeholder="ইমেইল (ঐচ্ছিক)"
+                    placeholder="ইমেইল *"
                     value={billingForm.email}
                     onChange={handleBillingChange}
                     className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/40 transition-all"
@@ -488,7 +488,7 @@ export default function EbookLandingPage() {
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="ফোন নম্বর * (01XXXXXXXXX)"
+                    placeholder="ফোন নম্বর (ঐচ্ছিক)"
                     value={billingForm.phone}
                     onChange={handleBillingChange}
                     className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/40 transition-all"
