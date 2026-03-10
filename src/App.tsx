@@ -193,7 +193,14 @@ const App = () => (
                   </AdminLayout>
                 }
               />
-              <Route path="/admin/order-protection" element={<AdminOrderProtection />} />
+              <Route
+                path="/admin/order-protection"
+                element={
+                  <AdminLayout>
+                    <AdminOrderProtection />
+                  </AdminLayout>
+                }
+              />
               <Route
                 path="/admin/contact-submissions"
                 element={
