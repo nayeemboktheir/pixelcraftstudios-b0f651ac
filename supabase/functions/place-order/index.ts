@@ -26,6 +26,7 @@ type PlaceOrderBody = {
   steadfastNote?: string | null;
   orderSource?: 'web' | 'manual' | 'landing_page';
   packPriceOverride?: number | null;
+  shippingCostOverride?: number | null;
 };
 
 function normalizeBdPhoneLocal(phone: string) {
