@@ -492,9 +492,11 @@ Deno.serve(async (req) => {
     const packOverride = typeof body.packPriceOverride === 'number' && body.packPriceOverride > 0 ? body.packPriceOverride : null;
     const subtotal = packOverride ?? calculatedSubtotal;
     
-    // Shipping cost based on zone: Inside Dhaka = 80 TK, Outside Dhaka = 130 TK
+    // Shipping cost: allow override (e.g. 0 for digital products), otherwise zone-based
     const shippingZone = body.shippingZone || 'outside_dhaka';
-    const shippingCost = shippingZone === 'inside_dhaka' ? 80 : 130;
+    const shippingCost = typeof body.shippingCostOverride === 'number' && body.shippingCostOverride >= 0
+      ? body.shippingCostOverride
+      : (shippingZone === 'inside_dhaka' ? 80 : 130);
     const total = subtotal + shippingCost;
     
     // Parse notes and order source
