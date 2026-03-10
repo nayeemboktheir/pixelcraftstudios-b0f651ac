@@ -34,6 +34,28 @@ export default function EbookLandingPage() {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [billingForm, setBillingForm] = useState({ name: '', email: '', phone: '' });
+  const [billingErrors, setBillingErrors] = useState<Record<string, string>>({});
+
+  const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBillingForm(prev => ({ ...prev, [name]: value }));
+    setBillingErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleOrder = () => {
+    const errors: Record<string, string> = {};
+    if (!billingForm.name.trim()) errors.name = 'নাম দিন';
+    if (!billingForm.phone.trim()) errors.phone = 'ফোন নম্বর দিন';
+    else if (!/^01[3-9]\d{8}$/.test(billingForm.phone.trim())) errors.phone = 'সঠিক ফোন নম্বর দিন';
+    if (billingForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingForm.email)) errors.email = 'সঠিক ইমেইল দিন';
+
+    if (Object.keys(errors).length > 0) {
+      setBillingErrors(errors);
+      return;
+    }
+    navigate("/checkout", { state: { billing: billingForm } });
+  };
 
   const features = [
     {
