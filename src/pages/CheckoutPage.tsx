@@ -23,6 +23,12 @@ interface ShippingForm {
   address: string;
 }
 
+interface BillingForm {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 // Generate or get session ID for tracking incomplete orders
 const getSessionId = () => {
   let sessionId = localStorage.getItem('checkout_session_id');
