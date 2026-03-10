@@ -249,6 +249,7 @@ export default function EbookLandingPage() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Problem Section */}
       <section className="py-16 bg-secondary/30">
