@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingBag, Truck, ArrowLeft, Loader2, CheckCircle, Banknote } from 'lucide-react';
+import { ShoppingBag, Truck, ArrowLeft, Loader2, CheckCircle, Banknote, Mail, User } from 'lucide-react';
 import { ShippingMethodSelector, ShippingZone, SHIPPING_RATES } from '@/components/checkout/ShippingMethodSelector';
 import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 import { useServerTracking } from '@/hooks/useServerTracking';
@@ -21,6 +21,12 @@ interface ShippingForm {
   name: string;
   phone: string;
   address: string;
+}
+
+interface BillingForm {
+  name: string;
+  email: string;
+  phone: string;
 }
 
 // Generate or get session ID for tracking incomplete orders
@@ -107,6 +113,12 @@ const CheckoutPage = () => {
     name: '',
     phone: '',
     address: '',
+  });
+
+  const [billingForm, setBillingForm] = useState<BillingForm>({
+    name: '',
+    email: '',
+    phone: '',
   });
 
   const shippingCost = SHIPPING_RATES[shippingZone];
@@ -336,13 +348,30 @@ const CheckoutPage = () => {
     setShippingForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleBillingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBillingForm(prev => ({ ...prev, [name]: value }));
+  };
+
   const validateForm = (): boolean => {
+    if (!billingForm.name.trim()) {
+      toast({ title: "Billing name is required", variant: "destructive" });
+      return false;
+    }
+    if (!billingForm.phone.trim() || !/^(\+?880)?01[3-9]\d{8}$/.test(billingForm.phone.replace(/\s/g, ''))) {
+      toast({ title: "Valid billing phone number is required", variant: "destructive" });
+      return false;
+    }
+    if (billingForm.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingForm.email.trim())) {
+      toast({ title: "Valid email address is required", variant: "destructive" });
+      return false;
+    }
     if (!shippingForm.name.trim()) {
-      toast({ title: "Name is required", variant: "destructive" });
+      toast({ title: "Delivery name is required", variant: "destructive" });
       return false;
     }
     if (!shippingForm.phone.trim() || !/^(\+?880)?01[3-9]\d{8}$/.test(shippingForm.phone.replace(/\s/g, ''))) {
-      toast({ title: "Valid Bangladesh phone number is required", variant: "destructive" });
+      toast({ title: "Valid delivery phone number is required", variant: "destructive" });
       return false;
     }
     if (!shippingForm.address.trim()) {
@@ -493,6 +522,54 @@ const CheckoutPage = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Forms */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Billing Information */}
+              <div className="bg-card rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="font-display text-xl font-semibold text-foreground">Billing Information</h2>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billing-name">Full Name *</Label>
+                    <Input
+                      id="billing-name"
+                      name="name"
+                      placeholder="Enter your full name"
+                      value={billingForm.name}
+                      onChange={handleBillingChange}
+                      required
+                    />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-email">Email</Label>
+                      <Input
+                        id="billing-email"
+                        name="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={billingForm.email}
+                        onChange={handleBillingChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="billing-phone">Phone Number *</Label>
+                      <Input
+                        id="billing-phone"
+                        name="phone"
+                        placeholder="01XXX-XXXXXX"
+                        value={billingForm.phone}
+                        onChange={handleBillingChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Shipping Information */}
               <div className="bg-card rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
