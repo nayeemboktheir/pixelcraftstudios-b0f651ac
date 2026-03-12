@@ -1,46 +1,47 @@
 import { motion } from 'framer-motion';
-import { Heart, ShieldCheck, Truck, RefreshCw, MessageCircle, Users, Sparkles, Package } from 'lucide-react';
+import { BookOpen, Brain, Sparkles, Target, Shield, Users, Zap, MessageCircle } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import pcsLogo from '@/assets/pcs-logo.png';
 
 const AboutPage = () => {
   const features = [
     {
-      icon: ShieldCheck,
-      title: 'প্রিমিয়াম কোয়ালিটি',
-      description: 'সর্বোচ্চ মানের কাপড় ও সেলাই নিশ্চিত করি প্রতিটি পণ্যে।'
+      icon: Brain,
+      title: 'AI প্রম্পট এক্সপার্ট',
+      description: 'ChatGPT, Midjourney, এবং অন্যান্য AI টুল সঠিকভাবে ব্যবহার করতে শেখায়।'
     },
     {
       icon: Sparkles,
-      title: 'ট্রেন্ডি ডিজাইন',
-      description: 'সর্বশেষ ফ্যাশন ট্রেন্ড অনুসরণ করে ডিজাইন করা হয়।'
+      title: 'প্র্যাক্টিক্যাল গাইড',
+      description: 'থিওরি নয়, সরাসরি কাজে লাগানো যায় এমন প্রম্পট ও টেকনিক।'
     },
     {
-      icon: Package,
-      title: '৬ পিসে পাইকারি',
-      description: 'মাত্র ৬ পিসে পাইকারি সুবিধা সহ ডিজাইন চয়েসের স্বাধীনতা।'
+      icon: Target,
+      title: 'ফ্রিল্যান্সিং ফোকাস',
+      description: 'AI দিয়ে কীভাবে আয় করা যায় সেটা হাতে-কলমে শেখানো হয়।'
     },
     {
-      icon: RefreshCw,
-      title: 'এক্সচেঞ্জ সাপোর্ট',
-      description: 'সহজ এক্সচেঞ্জ পলিসি সহ হ্যাসেল-ফ্রি শপিং।'
+      icon: Shield,
+      title: 'বাংলায় সম্পূর্ণ',
+      description: 'বাংলা ভাষায় সহজবোধ্য ব্যাখ্যা ও উদাহরণ সহ।'
     }
   ];
 
   const goals = [
     {
-      icon: Heart,
-      title: 'কাস্টমারের বিশ্বাস অর্জন',
-      description: 'প্রতিটি অর্ডারে সন্তুষ্টি নিশ্চিত করা আমাদের প্রধান লক্ষ্য।'
-    },
-    {
       icon: Users,
-      title: 'রিসেলারদের ব্যবসা সহজ করা',
-      description: 'অল্প পুঁজিতে ব্যবসা শুরু করার সুযোগ তৈরি করা।'
+      title: 'সবার জন্য AI শেখা সহজ করা',
+      description: 'টেকনিক্যাল ব্যাকগ্রাউন্ড ছাড়াই যেকেউ AI ব্যবহার শিখতে পারবে।'
     },
     {
-      icon: Truck,
-      title: 'দ্রুত ও নিরাপদ ডেলিভারি',
-      description: 'সারা বাংলাদেশে দ্রুত ও যত্ন সহকারে পণ্য পৌঁছে দেওয়া।'
+      icon: Zap,
+      title: 'প্রোডাক্টিভিটি বাড়ানো',
+      description: 'AI টুলস দিয়ে কাজের গতি ও মান দুটোই বাড়ানো।'
+    },
+    {
+      icon: BookOpen,
+      title: 'ডিজিটাল আয়ের পথ দেখানো',
+      description: 'AI স্কিল দিয়ে ফ্রিল্যান্সিং ও অনলাইন আয়ের সুযোগ তৈরি করা।'
     }
   ];
 
@@ -71,13 +72,17 @@ const AboutPage = () => {
                 ✨ আমাদের সম্পর্কে
               </motion.span>
               
+              <div className="flex justify-center mb-6">
+                <img src={pcsLogo} alt="Pixelcraft Studio" className="h-16 w-auto rounded-xl" />
+              </div>
+              
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-8 leading-tight">
-                সুন্দর পোশাক শুধু ফ্যাশন নয়—
-                <span className="block text-primary mt-2">এটা আত্মবিশ্বাসের প্রকাশ</span>
+                Pixelcraft Studio
+                <span className="block text-primary mt-2">AI শেখার নতুন অভিজ্ঞতা</span>
               </h1>
               
               <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                এই বিশ্বাস থেকেই আমাদের যাত্রা।
+                আমরা বিশ্বাস করি, AI সবার জন্য। তাই বাংলায় সহজ ভাষায় AI শেখার কন্টেন্ট তৈরি করি।
               </p>
             </motion.div>
           </div>
@@ -100,11 +105,11 @@ const AboutPage = () => {
                 
                 <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
                   <p>
-                    আমাদের প্রতিষ্ঠানটি মূলত <span className="text-primary font-semibold">প্রিমিয়াম থ্রি-পিস, শাড়ি ও ফ্যাশন ড্রেস</span> সরবরাহ করে থাকে, যেখানে <span className="text-foreground font-medium">কোয়ালিটি, কমফোর্ট ও ট্রেন্ড</span>—এই তিনটির ওপর আমরা সর্বোচ্চ গুরুত্ব দিই।
+                    <span className="text-primary font-semibold">Pixelcraft Studio</span> হলো একটি ডিজিটাল এডুকেশন প্ল্যাটফর্ম যেখানে আমরা <span className="text-foreground font-medium">AI, প্রম্পট ইঞ্জিনিয়ারিং, এবং ডিজিটাল স্কিল</span> নিয়ে বাংলায় কন্টেন্ট তৈরি করি।
                   </p>
                   
                   <p>
-                    আমাদের সব পণ্য নিজস্ব ফ্যাক্টরি ও বিশ্বস্ত সোর্স থেকে সংগ্রহ করা হয়, যেন কাস্টমার পান <span className="text-primary font-semibold">সেরা মানের কাপড় ন্যায্য দামে</span>।
+                    আমাদের প্রথম প্রোডাক্ট <span className="text-primary font-semibold">"AI Prompt Mastery"</span> ইবুক—যেখানে ChatGPT, ইমেজ জেনারেশন, ভিডিও তৈরি, এবং AI দিয়ে ফ্রিল্যান্সিং এর সম্পূর্ণ গাইড দেওয়া হয়েছে।
                   </p>
                 </div>
               </motion.div>
@@ -118,23 +123,23 @@ const AboutPage = () => {
               >
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-6">
-                    <Package className="w-8 h-8 text-primary" />
+                    <BookOpen className="w-8 h-8 text-primary" />
                   </div>
                   <h3 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-4">
-                    খুচরা ও পাইকারি—দুইভাবেই বিক্রি করি
+                    AI Prompt Mastery ইবুক
                   </h3>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
-                    বিশেষ করে যারা অল্প পুঁজি নিয়ে কাপড়ের ব্যবসা শুরু করতে চান, তাদের জন্য আমাদের রয়েছে—
+                    ৫০০+ পেজের বাংলা ইবুক যেখানে AI এর A টু Z শেখানো হয়েছে
                   </p>
                   <div className="flex flex-wrap justify-center gap-4">
                     <span className="px-5 py-3 bg-primary text-primary-foreground rounded-full font-medium">
-                      মাত্র ৬ পিসে পাইকারি
+                      ১৮টি অধ্যায়
                     </span>
                     <span className="px-5 py-3 bg-accent text-accent-foreground rounded-full font-medium">
-                      ডিজাইন চয়েসের স্বাধীনতা
+                      ৫০০+ প্রম্পট
                     </span>
                     <span className="px-5 py-3 bg-secondary text-secondary-foreground rounded-full font-medium">
-                      এক্সচেঞ্জ সাপোর্ট
+                      লাইফটাইম আপডেট
                     </span>
                   </div>
                 </div>
@@ -198,7 +203,7 @@ const AboutPage = () => {
                 🎯 আমাদের লক্ষ্য
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-                শুধু পণ্য বিক্রি করা নয়—
+                আমরা যা করতে চাই
               </h2>
             </motion.div>
 
@@ -242,22 +247,22 @@ const AboutPage = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-                আপনার পাশে আছি আমরা
+                AI শেখার যাত্রা শুরু করুন আজই
               </h2>
               <p className="text-xl opacity-90 mb-8 leading-relaxed max-w-2xl mx-auto">
-                আপনি যদি নিজের জন্য সুন্দর পোশাক খুঁজে থাকেন, অথবা ব্যবসার জন্য একটি নির্ভরযোগ্য সাপ্লায়ার চান—আমরা আছি আপনার পাশে।
+                "AI Prompt Mastery" ইবুক দিয়ে শুরু করুন আপনার AI শেখার যাত্রা। যেকোনো প্রশ্নে আমাদের সাথে যোগাযোগ করুন।
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
                 <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4">
                   <MessageCircle className="w-6 h-6" />
-                  <span className="font-medium">যেকোনো প্রশ্ন বা অর্ডারের জন্য ইনবক্স করুন</span>
+                  <span className="font-medium">যেকোনো প্রশ্নে Facebook এ মেসেজ করুন</span>
                 </div>
               </div>
               
               <div className="inline-block px-8 py-5 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/20">
                 <p className="text-xl font-display">
-                  🤝 আমাদের সাথে থাকুন—<span className="font-bold">স্টাইল আর বিশ্বাসের পথে</span>
+                  🚀 Pixelcraft Studio — <span className="font-bold">AI শেখা এখন সহজ</span>
                 </p>
               </div>
             </motion.div>

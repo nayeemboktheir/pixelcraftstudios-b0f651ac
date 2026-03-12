@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, MapPin, Clock, Send, MessageCircle, Truck, Users, Facebook } from 'lucide-react';
+import { Phone, MapPin, Clock, Send, MessageCircle, Facebook } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -51,25 +51,25 @@ const ContactPage = () => {
 
   const contactCards = [
     {
-      icon: MapPin,
-      title: 'ঠিকানা',
-      content: 'Road-1, Mirpur-13, Dhaka-1216',
-      subContent: 'Dhaka, Bangladesh',
-      color: 'from-red-500 to-rose-600'
+      icon: Facebook,
+      title: 'Facebook Page',
+      content: 'Pixelcraft Studio',
+      subContent: 'পেজে মেসেজ করুন',
+      color: 'from-blue-500 to-indigo-600'
     },
     {
       icon: Phone,
-      title: 'মোবাইল / হোয়াটসঅ্যাপ',
+      title: 'মোবাইল / WhatsApp',
       content: '01995-909243',
       subContent: 'সকাল 10টা – রাত 10টা',
       color: 'from-green-500 to-emerald-600'
     },
     {
-      icon: Facebook,
+      icon: MessageCircle,
       title: 'Facebook Inbox',
-      content: 'আমাদের পেজে মেসেজ করুন',
-      subContent: 'আমাদের টিম দ্রুত রিপ্লাই দেবে',
-      color: 'from-blue-500 to-indigo-600'
+      content: 'দ্রুত রিপ্লাই পাবেন',
+      subContent: 'আমাদের টিম সবসময় প্রস্তুত',
+      color: 'from-violet-500 to-purple-600'
     },
     {
       icon: Clock,
@@ -77,21 +77,6 @@ const ContactPage = () => {
       content: 'সকাল ১০টা - রাত ১০টা',
       subContent: 'প্রতিদিন',
       color: 'from-purple-500 to-violet-600'
-    }
-  ];
-
-  const features = [
-    {
-      icon: Truck,
-      title: 'ডেলিভারি',
-      description: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। নির্বাচিত পণ্যে ফ্রি ডেলিভারি প্রযোজ্য।',
-      color: 'bg-orange-500/10 text-orange-600'
-    },
-    {
-      icon: Users,
-      title: 'পাইকারি ও রিসেলার সাপোর্ট',
-      description: 'পাইকারি অর্ডার ও রিসেলার হিসেবে যুক্ত হতে ইনবক্স করুন।',
-      color: 'bg-teal-500/10 text-teal-600'
     }
   ];
 
@@ -115,7 +100,7 @@ const ContactPage = () => {
                 যোগাযোগ করুন
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                আমরা সবসময় আপনার পাশে। যেকোনো প্রশ্ন বা অর্ডারের জন্য আমাদের সাথে যোগাযোগ করুন।
+                ইবুক সংক্রান্ত যেকোনো প্রশ্ন বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। আমরা সবসময় আপনার পাশে।
               </p>
             </motion.div>
           </div>
@@ -137,46 +122,9 @@ const ContactPage = () => {
                   <div className={`w-14 h-14 bg-gradient-to-br ${card.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                     <card.icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {card.title}
-                  </h3>
-                  <p className="text-foreground font-medium">
-                    {card.content}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {card.subContent}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-12">
-          <div className="container-custom">
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: index === 0 ? -20 : 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-card rounded-2xl p-8 border border-border hover:border-primary/30 transition-all"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 ${feature.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                      <feature.icon className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground mb-2">
-                        {feature.title}
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {feature.description}
-                      </p>
-                    </div>
-                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{card.title}</h3>
+                  <p className="text-foreground font-medium">{card.content}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{card.subContent}</p>
                 </motion.div>
               ))}
             </div>
@@ -231,7 +179,7 @@ const ContactPage = () => {
 
                 {/* Facebook Button */}
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/pixelcraftstudiobd"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl hover:shadow-xl hover:shadow-violet-500/20 transition-all hover:-translate-y-1"
@@ -244,20 +192,6 @@ const ContactPage = () => {
                     <span className="text-white/80 text-sm">দ্রুত রিপ্লাই পাবেন</span>
                   </div>
                 </a>
-
-                {/* Map or Address Card */}
-                <div className="bg-card rounded-2xl p-6 border border-border">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-foreground">আমাদের অবস্থান</h3>
-                  </div>
-                  <p className="text-muted-foreground">
-                    Road-1, Mirpur-13, Dhaka-1216<br />
-                    Dhaka, Bangladesh
-                  </p>
-                </div>
               </motion.div>
 
               {/* Contact Form */}
@@ -271,14 +205,12 @@ const ContactPage = () => {
                     বার্তা পাঠান
                   </h2>
                   <p className="text-muted-foreground mb-6">
-                    যেকোনো প্রশ্ন বা অর্ডারের বিস্তারিত জানাতে ফর্মটি পূরণ করুন
+                    ইবুক বা অন্য কোনো বিষয়ে জানতে ফর্মটি পূরণ করুন
                   </p>
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          আপনার নাম *
-                        </label>
+                        <label className="block text-sm font-medium text-foreground mb-2">আপনার নাম *</label>
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -288,9 +220,7 @@ const ContactPage = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          ফোন নম্বর
-                        </label>
+                        <label className="block text-sm font-medium text-foreground mb-2">ফোন নম্বর</label>
                         <Input
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -300,9 +230,7 @@ const ContactPage = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        ইমেইল
-                      </label>
+                      <label className="block text-sm font-medium text-foreground mb-2">ইমেইল</label>
                       <Input
                         type="email"
                         value={formData.email}
@@ -312,9 +240,7 @@ const ContactPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        আপনার বার্তা *
-                      </label>
+                      <label className="block text-sm font-medium text-foreground mb-2">আপনার বার্তা *</label>
                       <Textarea
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
