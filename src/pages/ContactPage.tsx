@@ -159,7 +159,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <span className="block font-bold text-lg">WhatsApp এ মেসেজ করুন</span>
-                    <span className="text-white/80 text-sm">01995-909243</span>
+                    <span className="text-white/80 text-sm">019XX-XXXXXX</span>
                   </div>
                 </a>
 
