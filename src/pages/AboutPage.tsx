@@ -73,12 +73,12 @@ const AboutPage = () => {
                 <img src={pcsLogo} alt="Pixelcraft Studio" className="h-16 w-auto rounded-xl" />
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-8 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-8 leading-tight">
                 Pixelcraft Studio
-                <span className="block text-primary mt-2">AI শেখার নতুন অভিজ্ঞতা</span>
+                <span className="block text-accent mt-2">AI শেখার নতুন অভিজ্ঞতা</span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-white/70 max-w-2xl mx-auto leading-relaxed">
                 আমরা বিশ্বাস করি, AI সবার জন্য। তাই বাংলায় সহজ ভাষায় AI শেখার কন্টেন্ট তৈরি করি।
               </p>
             </motion.div>
