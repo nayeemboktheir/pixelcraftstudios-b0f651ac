@@ -2,6 +2,20 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import pcsLogo from '@/assets/pcs-logo.png';
 
 const EbookLayout = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleFaqClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  };
   return (
     <div className="min-h-screen bg-background font-sans flex flex-col">
       {/* Header */}
