@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Brain, Sparkles, Target, Shield, Users, Zap, MessageCircle } from 'lucide-react';
 import pcsLogo from '@/assets/pcs-logo.png';
 
 const AboutPage = () => {
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const features = [
     {
       icon: Brain,

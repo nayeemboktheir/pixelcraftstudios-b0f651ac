@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Phone, MapPin, Clock, Send, MessageCircle, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 
 const ContactPage = () => {
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
