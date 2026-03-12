@@ -64,7 +64,7 @@ const AboutPage = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-block px-6 py-3 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-8 border border-primary/20"
+                className="inline-block px-6 py-3 bg-white/10 text-accent rounded-full text-sm font-semibold mb-8 border border-white/20"
               >
                 ✨ আমাদের সম্পর্কে
               </motion.span>
