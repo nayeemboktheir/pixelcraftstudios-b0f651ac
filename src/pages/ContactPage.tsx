@@ -81,8 +81,8 @@ const ContactPage = () => {
   return (
     <div className="pb-16 min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
         {/* Hero Section */}
-        <section className="relative py-16 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/5" />
+        <section className="relative py-16 overflow-hidden gradient-hero">
+          <div className="absolute inset-0 bg-white/5" />
           <div className="container-custom relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
