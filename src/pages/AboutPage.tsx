@@ -45,9 +45,7 @@ const AboutPage = () => {
   ];
 
   return (
-    <>
-      <Header />
-      <div className="pt-32 pb-16">
+    <div className="pb-16">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-primary/10 via-background to-accent/10 py-24 overflow-hidden">
           <div className="absolute inset-0">
