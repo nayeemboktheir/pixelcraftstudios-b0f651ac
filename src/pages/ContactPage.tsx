@@ -249,8 +249,7 @@ const ContactPage = () => {
             </div>
           </div>
         </section>
-      </div>
-    </>
+    </div>
   );
 };
 
