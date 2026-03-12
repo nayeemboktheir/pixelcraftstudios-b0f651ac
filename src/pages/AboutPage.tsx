@@ -265,8 +265,7 @@ const AboutPage = () => {
             </motion.div>
           </div>
         </section>
-      </div>
-    </>
+    </div>
   );
 };
 
