@@ -29,6 +29,7 @@ import MyAccountPage from "@/pages/MyAccountPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import NotFound from "@/pages/NotFound";
 import StorefrontLayout from "@/components/layout/StorefrontLayout";
+import EbookLayout from "@/components/layout/EbookLayout";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
