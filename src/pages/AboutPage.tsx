@@ -47,10 +47,10 @@ const AboutPage = () => {
   return (
     <div className="pb-16">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-primary/10 via-background to-accent/10 py-24 overflow-hidden">
+        <section className="relative gradient-hero py-24 overflow-hidden">
           <div className="absolute inset-0">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
           </div>
           
           <div className="container-custom relative z-10">
@@ -64,7 +64,7 @@ const AboutPage = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-block px-6 py-3 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-8 border border-primary/20"
+                className="inline-block px-6 py-3 bg-white/10 text-accent rounded-full text-sm font-semibold mb-8 border border-white/20"
               >
                 ✨ আমাদের সম্পর্কে
               </motion.span>
@@ -73,12 +73,12 @@ const AboutPage = () => {
                 <img src={pcsLogo} alt="Pixelcraft Studio" className="h-16 w-auto rounded-xl" />
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-8 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-8 leading-tight">
                 Pixelcraft Studio
-                <span className="block text-primary mt-2">AI শেখার নতুন অভিজ্ঞতা</span>
+                <span className="block text-accent mt-2">AI শেখার নতুন অভিজ্ঞতা</span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-white/70 max-w-2xl mx-auto leading-relaxed">
                 আমরা বিশ্বাস করি, AI সবার জন্য। তাই বাংলায় সহজ ভাষায় AI শেখার কন্টেন্ট তৈরি করি।
               </p>
             </motion.div>

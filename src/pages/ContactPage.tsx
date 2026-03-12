@@ -81,21 +81,21 @@ const ContactPage = () => {
   return (
     <div className="pb-16 min-h-screen bg-gradient-to-b from-background via-muted/30 to-background">
         {/* Hero Section */}
-        <section className="relative py-16 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/5" />
+        <section className="relative py-16 overflow-hidden gradient-hero">
+          <div className="absolute inset-0 bg-white/5" />
           <div className="container-custom relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6">
+              <span className="inline-block px-4 py-2 bg-white/10 text-accent rounded-full text-sm font-medium mb-6 border border-white/20">
                 📞 আমাদের সাথে যোগাযোগ করুন
               </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-foreground mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
                 যোগাযোগ করুন
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-white/70 max-w-2xl mx-auto">
                 ইবুক সংক্রান্ত যেকোনো প্রশ্ন বা সাহায্যের জন্য আমাদের সাথে যোগাযোগ করুন। আমরা সবসময় আপনার পাশে।
               </p>
             </motion.div>
