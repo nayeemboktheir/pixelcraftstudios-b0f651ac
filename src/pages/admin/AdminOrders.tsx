@@ -101,6 +101,7 @@ interface Order {
 const sourceOptions = [
   { value: 'web', label: 'Web Orders', icon: Globe },
   { value: 'manual', label: 'Manual Orders', icon: UserPlus },
+  { value: 'landing_page', label: 'Landing Page', icon: BookOpen },
 ];
 
 const statusOptions = [
