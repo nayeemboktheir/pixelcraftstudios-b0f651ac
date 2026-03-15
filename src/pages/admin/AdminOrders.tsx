@@ -31,7 +31,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock, Send, Printer, Globe, UserPlus, Plus, Check, Tag, RefreshCw, RotateCcw, Loader2, UserCheck, History, Trash2, Calendar, Edit, BookOpen } from 'lucide-react';
+import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock, Send, Printer, Globe, UserPlus, Plus, Check, Tag, RefreshCw, RotateCcw, Loader2, UserCheck, History, Trash2, Calendar, Edit, BookOpen, Mail, Download, Link } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,7 +110,16 @@ const statusOptions = [
   { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'bg-teal-500' },
   { value: 'shipped', label: 'Shipped', icon: Truck, color: 'bg-purple-500' },
   { value: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'bg-green-500' },
+  { value: 'email_sent', label: 'Email Sent', icon: Mail, color: 'bg-indigo-500' },
+  { value: 'completed', label: 'Completed', icon: CheckCircle, color: 'bg-emerald-500' },
   { value: 'returned', label: 'Returned', icon: XCircle, color: 'bg-orange-500' },
+  { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500' },
+];
+
+const digitalStatusOptions = [
+  { value: 'pending', label: 'Pending', icon: Clock, color: 'bg-yellow-500' },
+  { value: 'email_sent', label: 'Email Sent', icon: Mail, color: 'bg-indigo-500' },
+  { value: 'completed', label: 'Completed', icon: CheckCircle, color: 'bg-emerald-500' },
   { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500' },
 ];
 
@@ -158,6 +167,75 @@ export default function AdminOrders() {
   const [invoiceNote, setInvoiceNote] = useState('');
   const [steadfastNote, setSteadfastNote] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailOrder, setEmailOrder] = useState<Order | null>(null);
+  const [downloadLink, setDownloadLink] = useState('');
+
+  const isDigitalView = sourceFilter === 'landing_page';
+
+  // Helper to extract email from landing_page order's shipping_street field
+  const extractEmail = (order: Order): string => {
+    const match = order.shipping_street?.match(/Email:\s*(.+)/i);
+    return match ? match[1].trim() : '';
+  };
+
+  // Get the appropriate status options based on order source
+  const getStatusOptionsForOrder = (order: Order) => {
+    return order.order_source === 'landing_page' ? digitalStatusOptions : statusOptions;
+  };
+
+  const openEmailDialog = (order: Order) => {
+    setEmailOrder(order);
+    setDownloadLink('');
+    setEmailDialogOpen(true);
+  };
+
+  const handleSendDigitalEmail = async () => {
+    if (!emailOrder || !downloadLink.trim()) {
+      toast.error('Download link is required');
+      return;
+    }
+
+    const customerEmail = extractEmail(emailOrder);
+    if (!customerEmail) {
+      toast.error('Customer email not found in order');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const productName = emailOrder.order_items.map(i => i.product_name).join(', ');
+      
+      const { data, error } = await supabase.functions.invoke('send-digital-delivery-email', {
+        body: {
+          order_id: emailOrder.id,
+          order_number: emailOrder.order_number,
+          customer_name: emailOrder.shipping_name,
+          customer_email: customerEmail,
+          download_link: downloadLink.trim(),
+          product_name: productName,
+          product_image: emailOrder.order_items[0]?.product_image || '',
+          total: Number(emailOrder.total),
+        },
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success('ইমেইল সফলভাবে পাঠানো হয়েছে!');
+        setEmailDialogOpen(false);
+        // Reload orders to reflect status change
+        loadOrders();
+      } else {
+        toast.error(data?.message || 'ইমেইল পাঠাতে সমস্যা হয়েছে');
+      }
+    } catch (error) {
+      console.error('Failed to send digital delivery email:', error);
+      toast.error('ইমেইল পাঠাতে সমস্যা হয়েছে');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const openEditDialog = (order: Order) => {
     setOrderToEdit(order);
@@ -751,7 +829,7 @@ export default function AdminOrders() {
       <div className="overflow-x-auto">
         <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
           <TabsList className="h-auto p-1 bg-muted/50 inline-flex w-auto min-w-full">
-            {statusOptions.map((status) => (
+            {(isDigitalView ? digitalStatusOptions : statusOptions).map((status) => (
               <TabsTrigger 
                 key={status.value} 
                 value={status.value}
@@ -776,7 +854,8 @@ export default function AdminOrders() {
         </Tabs>
       </div>
 
-      {/* Steadfast Status Filters */}
+      {/* Steadfast Status Filters - hide for digital products */}
+      {!isDigitalView && (
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-sm font-medium text-muted-foreground">Steadfast Status:</span>
         <div className="flex gap-2">
@@ -831,6 +910,7 @@ export default function AdminOrders() {
           Refresh Status
         </Button>
       </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -948,7 +1028,7 @@ export default function AdminOrders() {
             </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <Table className="min-w-[1400px]">
+          <Table className={isDigitalView ? "min-w-[900px]" : "min-w-[1400px]"}>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
@@ -958,17 +1038,18 @@ export default function AdminOrders() {
                   />
                 </TableHead>
                 <TableHead>Order</TableHead>
-                <TableHead>Source</TableHead>
+                {!isDigitalView && <TableHead>Source</TableHead>}
                 <TableHead>Customer</TableHead>
+                {isDigitalView && <TableHead>Email</TableHead>}
                 <TableHead>Products</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Steadfast Status</TableHead>
-                <TableHead>Print</TableHead>
+                {!isDigitalView && <TableHead>Steadfast Status</TableHead>}
+                {!isDigitalView && <TableHead>Print</TableHead>}
                 <TableHead>Change Status</TableHead>
-                <TableHead>Tracking</TableHead>
+                {!isDigitalView && <TableHead>Tracking</TableHead>}
                 <TableHead className="text-right sticky right-0 bg-background shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -987,7 +1068,7 @@ export default function AdminOrders() {
                   >
                     {order.order_number}
                   </TableCell>
-                  <TableCell>{getSourceBadge(order.order_source)}</TableCell>
+                  {!isDigitalView && <TableCell>{getSourceBadge(order.order_source)}</TableCell>}
                   <TableCell>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -998,7 +1079,7 @@ export default function AdminOrders() {
                           >
                             {order.shipping_name}
                           </span>
-                          {getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
+                          {!isDigitalView && getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
                             <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200">
                               <UserCheck className="h-3 w-3" />
                               Repeat
@@ -1006,13 +1087,20 @@ export default function AdminOrders() {
                           )}
                         </div>
                         <div className="text-sm text-muted-foreground">{order.shipping_phone}</div>
-                        <CombinedCourierHistoryInline phone={order.shipping_phone} className="mt-2" />
+                        {!isDigitalView && <CombinedCourierHistoryInline phone={order.shipping_phone} className="mt-2" />}
                       </div>
+                      {!isDigitalView && (
                       <div className="shrink-0 pt-1">
                         <CourierHistoryDialog phone={order.shipping_phone} customerName={order.shipping_name} />
                       </div>
+                      )}
                     </div>
                   </TableCell>
+                  {isDigitalView && (
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">{extractEmail(order) || 'N/A'}</span>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <div className="flex items-center gap-1">
                       {order.order_items.slice(0, 3).map((item, idx) => (
@@ -1054,7 +1142,8 @@ export default function AdminOrders() {
                     </Badge>
                   </TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  <TableCell>{getSteadfastStatusBadge(order.tracking_number)}</TableCell>
+                  {!isDigitalView && <TableCell>{getSteadfastStatusBadge(order.tracking_number)}</TableCell>}
+                  {!isDigitalView && (
                   <TableCell>
                     <button
                       onClick={() => handleTogglePrinted(order.id, order.is_printed)}
@@ -1072,6 +1161,7 @@ export default function AdminOrders() {
                       )}
                     </button>
                   </TableCell>
+                  )}
                   <TableCell>
                     <Select
                       value={order.status}
@@ -1082,7 +1172,7 @@ export default function AdminOrders() {
                         <SelectValue placeholder="Change" />
                       </SelectTrigger>
                       <SelectContent>
-                        {statusOptions.map((status) => {
+                        {getStatusOptionsForOrder(order).map((status) => {
                           const Icon = status.icon;
                           return (
                             <SelectItem key={status.value} value={status.value}>
@@ -1096,6 +1186,7 @@ export default function AdminOrders() {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  {!isDigitalView && (
                   <TableCell>
                     {order.tracking_number ? (
                       <a 
@@ -1113,6 +1204,7 @@ export default function AdminOrders() {
                       <span className="text-muted-foreground text-sm">Not sent</span>
                     )}
                   </TableCell>
+                  )}
                   <TableCell className="text-right sticky right-0 bg-background shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     <div className="flex items-center justify-end gap-1">
                       <Button
@@ -1123,6 +1215,17 @@ export default function AdminOrders() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
+                      {order.order_source === 'landing_page' && order.status === 'pending' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEmailDialog(order)}
+                          title="Send download email"
+                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -1159,7 +1262,7 @@ export default function AdminOrders() {
                 <div>
                   <h3 className="font-medium mb-2 flex items-center gap-2">
                     Customer Information
-                    {getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
+                    {selectedOrder.order_source !== 'landing_page' && getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
                       <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700">
                         <UserCheck className="h-3 w-3" />
                         Repeat Customer
@@ -1169,9 +1272,18 @@ export default function AdminOrders() {
                   <div className="text-sm space-y-1 text-muted-foreground">
                     <p>{selectedOrder.shipping_name}</p>
                     <p>{selectedOrder.shipping_phone}</p>
-                    <p>{selectedOrder.shipping_street}</p>
-                    <p>{selectedOrder.shipping_district}, {selectedOrder.shipping_city}</p>
-                    {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                    {selectedOrder.order_source === 'landing_page' ? (
+                      <p className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {extractEmail(selectedOrder) || 'No email'}
+                      </p>
+                    ) : (
+                      <>
+                        <p>{selectedOrder.shipping_street}</p>
+                        <p>{selectedOrder.shipping_district}, {selectedOrder.shipping_city}</p>
+                        {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -1180,6 +1292,12 @@ export default function AdminOrders() {
                     <p>Date: {format(new Date(selectedOrder.created_at), 'PPpp')}</p>
                     <p>Payment: {selectedOrder.payment_method.toUpperCase()}</p>
                     <p>Payment Status: {selectedOrder.payment_status}</p>
+                    {selectedOrder.order_source === 'landing_page' && (
+                      <p className="flex items-center gap-1 text-indigo-600 font-medium">
+                        <BookOpen className="h-3 w-3" />
+                        Digital Product
+                      </p>
+                    )}
                     {selectedOrder.notes && <p>Notes: {selectedOrder.notes}</p>}
                   </div>
                 </div>
@@ -1308,7 +1426,7 @@ export default function AdminOrders() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {statusOptions.map((status) => (
+                        {getStatusOptionsForOrder(selectedOrder).map((status) => (
                           <SelectItem key={status.value} value={status.value}>
                             {status.label}
                           </SelectItem>
@@ -1316,6 +1434,7 @@ export default function AdminOrders() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {selectedOrder.order_source !== 'landing_page' && (
                   <div className="space-y-2">
                     <Label>Tracking Number</Label>
                     <Input
@@ -1324,6 +1443,7 @@ export default function AdminOrders() {
                       placeholder="Enter tracking number"
                     />
                   </div>
+                  )}
                 </div>
                 <div className="flex gap-2 mt-4">
                   <Button
@@ -1337,14 +1457,28 @@ export default function AdminOrders() {
                     <Edit className="h-4 w-4" />
                     Edit Order
                   </Button>
-                  <Button
-                    onClick={() => handleSendToSteadfast(selectedOrder)}
-                    disabled={sendingToSteadfast || !!selectedOrder.tracking_number}
-                    className="flex-1"
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    {sendingToSteadfast ? 'Sending...' : selectedOrder.tracking_number ? 'Already Sent to Steadfast' : 'Send to Steadfast'}
-                  </Button>
+                  {selectedOrder.order_source === 'landing_page' ? (
+                    <Button
+                      onClick={() => {
+                        setIsDetailOpen(false);
+                        openEmailDialog(selectedOrder);
+                      }}
+                      disabled={selectedOrder.status === 'email_sent' || selectedOrder.status === 'completed'}
+                      className="flex-1 gap-2 bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      <Mail className="h-4 w-4" />
+                      {selectedOrder.status === 'email_sent' ? 'Email Already Sent' : selectedOrder.status === 'completed' ? 'Completed' : 'Send Download Email'}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleSendToSteadfast(selectedOrder)}
+                      disabled={sendingToSteadfast || !!selectedOrder.tracking_number}
+                      className="flex-1"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      {sendingToSteadfast ? 'Sending...' : selectedOrder.tracking_number ? 'Already Sent to Steadfast' : 'Send to Steadfast'}
+                    </Button>
+                  )}
                   <Button
                     variant="destructive"
                     onClick={() => openDeleteDialog(selectedOrder)}
@@ -1421,6 +1555,72 @@ export default function AdminOrders() {
         onOpenChange={setIsManualOrderOpen}
         onOrderCreated={loadOrders}
       />
+
+      {/* Digital Product Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-indigo-600" />
+              ডাউনলোড ইমেইল পাঠান
+            </DialogTitle>
+          </DialogHeader>
+          {emailOrder && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 rounded-lg p-3 space-y-1 text-sm">
+                <p><strong>Order:</strong> {emailOrder.order_number}</p>
+                <p><strong>Customer:</strong> {emailOrder.shipping_name}</p>
+                <p><strong>Email:</strong> {extractEmail(emailOrder) || 'Not found'}</p>
+                <p><strong>Product:</strong> {emailOrder.order_items.map(i => i.product_name).join(', ')}</p>
+                <p><strong>Total:</strong> ৳{Number(emailOrder.total).toFixed(0)}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1">
+                  <Link className="h-3.5 w-3.5" />
+                  Download Link *
+                </Label>
+                <Input
+                  value={downloadLink}
+                  onChange={(e) => setDownloadLink(e.target.value)}
+                  placeholder="https://drive.google.com/..."
+                  type="url"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Google Drive, Dropbox বা অন্য কোনো ডাউনলোড লিংক দিন
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setEmailDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSendDigitalEmail}
+                  disabled={sendingEmail || !downloadLink.trim() || !extractEmail(emailOrder)}
+                  className="flex-1 gap-2 bg-indigo-600 hover:bg-indigo-700"
+                >
+                  {sendingEmail ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      পাঠানো হচ্ছে...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4" />
+                      ইমেইল পাঠান
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
