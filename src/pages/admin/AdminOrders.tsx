@@ -1068,7 +1068,7 @@ export default function AdminOrders() {
                   >
                     {order.order_number}
                   </TableCell>
-                  <TableCell>{getSourceBadge(order.order_source)}</TableCell>
+                  {!isDigitalView && <TableCell>{getSourceBadge(order.order_source)}</TableCell>}
                   <TableCell>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -1079,7 +1079,7 @@ export default function AdminOrders() {
                           >
                             {order.shipping_name}
                           </span>
-                          {getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
+                          {!isDigitalView && getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
                             <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200">
                               <UserCheck className="h-3 w-3" />
                               Repeat
@@ -1087,13 +1087,20 @@ export default function AdminOrders() {
                           )}
                         </div>
                         <div className="text-sm text-muted-foreground">{order.shipping_phone}</div>
-                        <CombinedCourierHistoryInline phone={order.shipping_phone} className="mt-2" />
+                        {!isDigitalView && <CombinedCourierHistoryInline phone={order.shipping_phone} className="mt-2" />}
                       </div>
+                      {!isDigitalView && (
                       <div className="shrink-0 pt-1">
                         <CourierHistoryDialog phone={order.shipping_phone} customerName={order.shipping_name} />
                       </div>
+                      )}
                     </div>
                   </TableCell>
+                  {isDigitalView && (
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">{extractEmail(order) || 'N/A'}</span>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <div className="flex items-center gap-1">
                       {order.order_items.slice(0, 3).map((item, idx) => (
@@ -1135,7 +1142,8 @@ export default function AdminOrders() {
                     </Badge>
                   </TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  <TableCell>{getSteadfastStatusBadge(order.tracking_number)}</TableCell>
+                  {!isDigitalView && <TableCell>{getSteadfastStatusBadge(order.tracking_number)}</TableCell>}
+                  {!isDigitalView && (
                   <TableCell>
                     <button
                       onClick={() => handleTogglePrinted(order.id, order.is_printed)}
@@ -1153,6 +1161,7 @@ export default function AdminOrders() {
                       )}
                     </button>
                   </TableCell>
+                  )}
                   <TableCell>
                     <Select
                       value={order.status}
@@ -1163,7 +1172,7 @@ export default function AdminOrders() {
                         <SelectValue placeholder="Change" />
                       </SelectTrigger>
                       <SelectContent>
-                        {statusOptions.map((status) => {
+                        {getStatusOptionsForOrder(order).map((status) => {
                           const Icon = status.icon;
                           return (
                             <SelectItem key={status.value} value={status.value}>
@@ -1177,6 +1186,7 @@ export default function AdminOrders() {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  {!isDigitalView && (
                   <TableCell>
                     {order.tracking_number ? (
                       <a 
@@ -1194,6 +1204,7 @@ export default function AdminOrders() {
                       <span className="text-muted-foreground text-sm">Not sent</span>
                     )}
                   </TableCell>
+                  )}
                   <TableCell className="text-right sticky right-0 bg-background shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     <div className="flex items-center justify-end gap-1">
                       <Button
@@ -1204,6 +1215,17 @@ export default function AdminOrders() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
+                      {order.order_source === 'landing_page' && order.status === 'pending' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEmailDialog(order)}
+                          title="Send download email"
+                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
