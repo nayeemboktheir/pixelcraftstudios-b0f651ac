@@ -167,6 +167,75 @@ export default function AdminOrders() {
   const [invoiceNote, setInvoiceNote] = useState('');
   const [steadfastNote, setSteadfastNote] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailOrder, setEmailOrder] = useState<Order | null>(null);
+  const [downloadLink, setDownloadLink] = useState('');
+
+  const isDigitalView = sourceFilter === 'landing_page';
+
+  // Helper to extract email from landing_page order's shipping_street field
+  const extractEmail = (order: Order): string => {
+    const match = order.shipping_street?.match(/Email:\s*(.+)/i);
+    return match ? match[1].trim() : '';
+  };
+
+  // Get the appropriate status options based on order source
+  const getStatusOptionsForOrder = (order: Order) => {
+    return order.order_source === 'landing_page' ? digitalStatusOptions : statusOptions;
+  };
+
+  const openEmailDialog = (order: Order) => {
+    setEmailOrder(order);
+    setDownloadLink('');
+    setEmailDialogOpen(true);
+  };
+
+  const handleSendDigitalEmail = async () => {
+    if (!emailOrder || !downloadLink.trim()) {
+      toast.error('Download link is required');
+      return;
+    }
+
+    const customerEmail = extractEmail(emailOrder);
+    if (!customerEmail) {
+      toast.error('Customer email not found in order');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const productName = emailOrder.order_items.map(i => i.product_name).join(', ');
+      
+      const { data, error } = await supabase.functions.invoke('send-digital-delivery-email', {
+        body: {
+          order_id: emailOrder.id,
+          order_number: emailOrder.order_number,
+          customer_name: emailOrder.shipping_name,
+          customer_email: customerEmail,
+          download_link: downloadLink.trim(),
+          product_name: productName,
+          product_image: emailOrder.order_items[0]?.product_image || '',
+          total: Number(emailOrder.total),
+        },
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success('ইমেইল সফলভাবে পাঠানো হয়েছে!');
+        setEmailDialogOpen(false);
+        // Reload orders to reflect status change
+        loadOrders();
+      } else {
+        toast.error(data?.message || 'ইমেইল পাঠাতে সমস্যা হয়েছে');
+      }
+    } catch (error) {
+      console.error('Failed to send digital delivery email:', error);
+      toast.error('ইমেইল পাঠাতে সমস্যা হয়েছে');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const openEditDialog = (order: Order) => {
     setOrderToEdit(order);
