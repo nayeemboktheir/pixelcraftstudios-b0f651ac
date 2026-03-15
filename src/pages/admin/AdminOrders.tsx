@@ -1262,7 +1262,7 @@ export default function AdminOrders() {
                 <div>
                   <h3 className="font-medium mb-2 flex items-center gap-2">
                     Customer Information
-                    {getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
+                    {selectedOrder.order_source !== 'landing_page' && getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
                       <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700">
                         <UserCheck className="h-3 w-3" />
                         Repeat Customer
@@ -1272,9 +1272,18 @@ export default function AdminOrders() {
                   <div className="text-sm space-y-1 text-muted-foreground">
                     <p>{selectedOrder.shipping_name}</p>
                     <p>{selectedOrder.shipping_phone}</p>
-                    <p>{selectedOrder.shipping_street}</p>
-                    <p>{selectedOrder.shipping_district}, {selectedOrder.shipping_city}</p>
-                    {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                    {selectedOrder.order_source === 'landing_page' ? (
+                      <p className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {extractEmail(selectedOrder) || 'No email'}
+                      </p>
+                    ) : (
+                      <>
+                        <p>{selectedOrder.shipping_street}</p>
+                        <p>{selectedOrder.shipping_district}, {selectedOrder.shipping_city}</p>
+                        {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -1283,6 +1292,12 @@ export default function AdminOrders() {
                     <p>Date: {format(new Date(selectedOrder.created_at), 'PPpp')}</p>
                     <p>Payment: {selectedOrder.payment_method.toUpperCase()}</p>
                     <p>Payment Status: {selectedOrder.payment_status}</p>
+                    {selectedOrder.order_source === 'landing_page' && (
+                      <p className="flex items-center gap-1 text-indigo-600 font-medium">
+                        <BookOpen className="h-3 w-3" />
+                        Digital Product
+                      </p>
+                    )}
                     {selectedOrder.notes && <p>Notes: {selectedOrder.notes}</p>}
                   </div>
                 </div>
