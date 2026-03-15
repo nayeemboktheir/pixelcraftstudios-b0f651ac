@@ -829,7 +829,7 @@ export default function AdminOrders() {
       <div className="overflow-x-auto">
         <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
           <TabsList className="h-auto p-1 bg-muted/50 inline-flex w-auto min-w-full">
-            {statusOptions.map((status) => (
+            {(isDigitalView ? digitalStatusOptions : statusOptions).map((status) => (
               <TabsTrigger 
                 key={status.value} 
                 value={status.value}
