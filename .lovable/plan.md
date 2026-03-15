@@ -1,34 +1,18 @@
 
 
-## Restore Storefront Routes
+## Plan: Add Landing Page (Digital Product) Source Filter to Admin Orders
 
-All storefront page components still exist in `src/pages/` — they were just removed from routing in `App.tsx`. The fix is to re-add all the storefront routes and wrap them with the shared layout (Header, Footer, CartDrawer, SocialChatWidget).
-
-### Pages to restore
-
-| Route | Component |
-|-------|-----------|
-| `/` | HomePage |
-| `/products` | ProductsPage |
-| `/products/:slug` | ProductDetailPage |
-| `/cart` | CartPage |
-| `/about` | AboutPage |
-| `/contact` | ContactPage |
-| `/wishlist` | WishlistPage |
-| `/my-account` | MyAccountPage |
-| `/reset-password` | ResetPasswordPage |
+### Problem
+Ebook/digital product orders are placed with `order_source: 'landing_page'`, but the admin orders panel only has "Web Orders" and "Manual Orders" source filter tabs. Landing page orders show up but can't be filtered separately.
 
 ### Changes
 
-**1. `src/App.tsx`**
-- Import all storefront page components (HomePage, ProductsPage, ProductDetailPage, CartPage, AboutPage, ContactPage, WishlistPage, MyAccountPage, ResetPasswordPage)
-- Import CartDrawer and SocialChatWidget
-- Create a `StorefrontLayout` wrapper that includes Header, Footer, CartDrawer, and SocialChatWidget
-- Add routes for all storefront pages listed above
-- Change the default `/` route from redirecting to `/admin` to rendering HomePage
-- Change the `*` catch-all to render NotFound instead of redirecting to admin
+**File: `src/pages/admin/AdminOrders.tsx`**
 
-**2. Create `src/components/layout/StorefrontLayout.tsx`**
-- Wraps children with Header at top, Footer at bottom, CartDrawer overlay, and SocialChatWidget
-- Reusable layout for all public-facing storefront pages
+1. **Add `landing_page` to `sourceOptions` array** (line ~101-104):
+   - Add `{ value: 'landing_page', label: 'Landing Page', icon: BookOpen }` (import `BookOpen` from lucide-react)
+   
+2. **Update `getSourceBadge` function** — this already handles unknown sources with a fallback, so adding the option to `sourceOptions` will automatically give it a proper badge.
+
+That's it — the existing filter logic (`matchesSource`, `getSourceCount`, tab rendering via `sourceOptions.map`) already supports any source value dynamically. Adding the entry to `sourceOptions` will make landing page orders filterable and display with a proper icon/label.
 
