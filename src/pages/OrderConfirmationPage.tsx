@@ -211,8 +211,8 @@ const OrderConfirmationPage = () => {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* Action Button */}
+          <div className="flex justify-center">
             <Button onClick={() => navigate("/")} variant="outline" size="lg" className="gap-2">
               <Home className="h-5 w-5" />
               হোমপেজে যান
