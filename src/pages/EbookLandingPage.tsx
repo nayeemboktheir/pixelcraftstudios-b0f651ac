@@ -86,21 +86,24 @@ export default function EbookLandingPage() {
         throw new Error(data?.error || 'অর্ডার করতে সমস্যা হয়েছে');
       }
 
-      navigate('/order-confirmation', {
-        state: {
-          orderNumber: data.orderNumber,
-          customerName: billingForm.name,
-          phone: billingForm.phone || undefined,
-          total: data.total,
-          items: [{
-            productId: 'ebook-ai-prompt-mastery',
-            productName: 'AI Prompt Mastery',
-            price: 199,
-            quantity: 1,
-          }],
-          fromLandingPage: true,
-        },
-      });
+      // Store order confirmation data for after payment redirect
+      const confirmationData = {
+        orderNumber: data.orderNumber,
+        customerName: billingForm.name,
+        phone: billingForm.phone || undefined,
+        total: data.total,
+        items: [{
+          productId: 'ebook-ai-prompt-mastery',
+          productName: 'AI Prompt Mastery',
+          price: 199,
+          quantity: 1,
+        }],
+        fromLandingPage: true,
+      };
+      sessionStorage.setItem('pending_order_confirmation', JSON.stringify(confirmationData));
+
+      // Redirect to payment gateway
+      window.location.href = 'https://pg.eps.com.bd/StaticPaymentLink?id=14F685E8';
     } catch (err: any) {
       toast({
         title: 'অর্ডার ব্যর্থ',
