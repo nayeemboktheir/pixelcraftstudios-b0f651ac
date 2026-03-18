@@ -218,51 +218,6 @@ const OrderConfirmationPage = () => {
             </div>
           )}
 
-          {/* Next Steps */}
-          <div className="bg-blue-50 rounded-xl p-6 mb-8 text-left">
-            <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              পরবর্তী ধাপসমূহ
-            </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-800 text-xs font-bold">১</span>
-                </div>
-                <span className="text-gray-700">আমাদের টিম শীঘ্রই আপনার সাথে কল করে অর্ডার কনফার্ম করবে</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-800 text-xs font-bold">২</span>
-                </div>
-                <span className="text-gray-700">পণ্য প্যাকেজিং করে কুরিয়ারে হস্তান্তর করা হবে</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-800 text-xs font-bold">৩</span>
-                </div>
-                <span className="text-gray-700">পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন (ক্যাশ অন ডেলিভারি)</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Delivery Info */}
-          <div className="flex items-center justify-center gap-4 mb-8 p-4 bg-green-50 rounded-xl border border-green-200">
-            <Truck className="h-8 w-8 text-green-600" />
-            <div className="text-left">
-              <p className="font-semibold text-green-800">ডেলিভারি সময়</p>
-              <p className="text-sm text-green-700">ঢাকায় ১-২ দিন • ঢাকার বাইরে ৩-৫ দিন</p>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div className="text-center mb-8 p-4 bg-gray-50 rounded-xl">
-            <p className="text-gray-600 mb-2">যেকোনো প্রশ্নে কল করুন</p>
-            <a href="tel:+8801995909243" className="text-xl font-bold text-primary hover:underline">
-              📞 +880 1995-909243
-            </a>
-          </div>
-
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
