@@ -1,10 +1,10 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Package, Phone, Home, Truck, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useFacebookPixel } from '@/hooks/useFacebookPixel';
-import { useServerTracking } from '@/hooks/useServerTracking';
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, Package, Phone, Home, Truck, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
+import { useServerTracking } from "@/hooks/useServerTracking";
 
 interface OrderItem {
   productId: string;
@@ -43,8 +43,7 @@ const OrderConfirmationPage = () => {
   const { isReady: pixelReady, setUserData } = useFacebookPixel();
   const { trackPurchase: trackServerPurchase } = useServerTracking();
 
-  
-  const orderNumber = state?.orderNumber || '';
+  const orderNumber = state?.orderNumber || "";
   const customerName = state?.customerName;
   const phone = state?.phone;
   const total = state?.total;
@@ -64,9 +63,9 @@ const OrderConfirmationPage = () => {
     }
 
     // Update user data for better matching (safe to call multiple times)
-    const nameParts = (customerName || '').trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    const nameParts = (customerName || "").trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
 
     if (phone || firstName) {
       setUserData?.({
@@ -89,7 +88,7 @@ const OrderConfirmationPage = () => {
 
     const contentIds = items.map((item) => item.productId);
     const contentNames = items.map((item) => item.productName);
-    
+
     // Build contents array with quantity and price for better event matching
     const contents = items.map((item) => ({
       id: item.productId,
@@ -97,9 +96,9 @@ const OrderConfirmationPage = () => {
       item_price: item.price,
     }));
 
-    const nameParts = (customerName || '').trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    const nameParts = (customerName || "").trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
 
     trackServerPurchase({
       orderId: orderNumber,
@@ -108,17 +107,17 @@ const OrderConfirmationPage = () => {
       contents: contents.length > 0 ? contents : undefined,
       value: total,
       numItems: numItems || 1,
-      currency: 'BDT',
-      userData: { 
-        phone, 
-        firstName, 
+      currency: "BDT",
+      userData: {
+        phone,
+        firstName,
         lastName,
         city: city || district, // Use city or district for better matching
-        country: 'bd',
+        country: "bd",
       },
       eventId,
     }).catch((err) => {
-      console.error('[CAPI] Purchase tracking error:', err);
+      console.error("[CAPI] Purchase tracking error:", err);
     });
   }, [orderNumber, total, items, numItems, customerName, phone, city, district, trackServerPurchase]);
 
@@ -134,22 +133,20 @@ const OrderConfirmationPage = () => {
     const contentIds = items.map((item) => item.productId);
 
     window.fbq(
-      'track',
-      'Purchase',
+      "track",
+      "Purchase",
       {
         content_ids: contentIds.length > 0 ? contentIds : [orderNumber],
-        content_type: 'product',
+        content_type: "product",
         value: total,
-        currency: 'BDT',
+        currency: "BDT",
         num_items: numItems || 1,
       },
-      { eventID: eventId }
+      { eventID: eventId },
     );
 
     hasSentPixelPurchaseRef.current = true;
   }, [orderNumber, total, items, numItems, pixelReady]);
-
-
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-green-50 to-white py-12 px-4">
@@ -173,12 +170,8 @@ const OrderConfirmationPage = () => {
           transition={{ delay: 0.2 }}
           className="bg-white rounded-2xl shadow-xl p-8 text-center"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-            🎉 অর্ডার সফল হয়েছে!
-          </h1>
-          <p className="text-lg text-gray-600 mb-6">
-            আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে
-          </p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">🎉 অর্ডার সফল হয়েছে!</h1>
+          <p className="text-lg text-gray-600 mb-6">আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে</p>
 
           {/* Order Number */}
           {orderNumber && (
@@ -220,22 +213,9 @@ const OrderConfirmationPage = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              size="lg"
-              className="gap-2"
-            >
+            <Button onClick={() => navigate("/")} variant="outline" size="lg" className="gap-2">
               <Home className="h-5 w-5" />
               হোমপেজে যান
-            </Button>
-            <Button
-              onClick={() => navigate('/products')}
-              size="lg"
-              className="gap-2 bg-green-600 hover:bg-green-700"
-            >
-              আরও পণ্য দেখুন
-              <ArrowRight className="h-5 w-5" />
             </Button>
           </div>
         </motion.div>
