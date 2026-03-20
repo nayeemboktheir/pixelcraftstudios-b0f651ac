@@ -185,9 +185,11 @@ export default function AdminOrders() {
     return order.order_source === 'landing_page' ? digitalStatusOptions : statusOptions;
   };
 
+  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products%2Fn8n_Masterclass.pdf';
+
   const openEmailDialog = (order: Order) => {
     setEmailOrder(order);
-    setDownloadLink('');
+    setDownloadLink(defaultPdfLink);
     setEmailDialogOpen(true);
   };
 
