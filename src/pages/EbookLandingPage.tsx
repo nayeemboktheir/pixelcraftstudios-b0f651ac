@@ -66,9 +66,9 @@ export default function EbookLandingPage() {
         body: {
           userId: null,
           items: [{
-            productId: 'ebook-ai-prompt-mastery',
+            productId: 'ebook-n8n-masterclass',
             quantity: 1,
-            productName: 'AI Prompt Mastery - Complete Guide (PDF)',
+            productName: 'n8n Masterclass (PDF)',
             productImage: null,
             price: 199,
           }],
@@ -86,6 +86,24 @@ export default function EbookLandingPage() {
         throw new Error(data?.error || 'অর্ডার করতে সমস্যা হয়েছে');
       }
 
+      // Auto-send digital delivery email with PDF download link
+      const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products%2Fn8n_Masterclass.pdf';
+      try {
+        await supabase.functions.invoke('send-digital-delivery-email', {
+          body: {
+            order_id: data.orderId,
+            order_number: data.orderNumber,
+            customer_name: billingForm.name.trim(),
+            customer_email: billingForm.email.trim(),
+            download_link: pdfDownloadUrl,
+            product_name: 'n8n Masterclass (PDF)',
+            total: Number(data.total),
+          },
+        });
+      } catch (emailErr) {
+        console.error('Auto email failed, admin can send manually:', emailErr);
+      }
+
       // Store order confirmation data for after payment redirect
       const confirmationData = {
         orderNumber: data.orderNumber,
@@ -93,8 +111,8 @@ export default function EbookLandingPage() {
         phone: billingForm.phone || undefined,
         total: data.total,
         items: [{
-          productId: 'ebook-ai-prompt-mastery',
-          productName: 'AI Prompt Mastery',
+          productId: 'ebook-n8n-masterclass',
+          productName: 'n8n Masterclass',
           price: 199,
           quantity: 1,
         }],
