@@ -137,6 +137,7 @@ export default function AdminOrders() {
   const [invoiceNote, setInvoiceNote] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [bulkSendingEmail, setBulkSendingEmail] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailOrder, setEmailOrder] = useState<Order | null>(null);
   const [downloadLink, setDownloadLink] = useState('');
