@@ -160,16 +160,12 @@ export function ManualOrderDialog({ open, onOpenChange, onOrderCreated }: Manual
   // Customer info
   const [mobileNumber, setMobileNumber] = useState('');
   const [customerName, setCustomerName] = useState('');
-  const [customerAddress, setCustomerAddress] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [invoiceNote, setInvoiceNote] = useState('');
-  const [steadfastNote, setSteadfastNote] = useState('');
-  const [deliveryMethod, setDeliveryMethod] = useState('steadfast');
-  const [shippingZone, setShippingZone] = useState<'inside_dhaka' | 'outside_dhaka'>('outside_dhaka');
   
   // Pricing
   const [discount, setDiscount] = useState('');
   const [advance, setAdvance] = useState('');
-  const [deliveryCharge, setDeliveryCharge] = useState('');
 
   // Courier history
   const [courierHistory, setCourierHistory] = useState<CourierData | undefined>();
