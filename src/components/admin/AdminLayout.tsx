@@ -9,21 +9,18 @@ import {
   FolderTree, 
   ShoppingCart, 
   Users, 
-  Boxes,
   Image,
   LogOut,
   ChevronRight,
   Menu,
-  Truck,
-  History,
   Settings,
   Megaphone,
   MessageSquare,
   Share2,
   BarChart3,
   Home,
-  Video,
   Shield,
+  Mail,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
