@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,8 +11,13 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { Mail, Search, RefreshCw, CheckCircle, XCircle, Clock, AlertTriangle, Send } from 'lucide-react';
+import { Mail, Search, RefreshCw, CheckCircle, XCircle, Clock, AlertTriangle, Send, RotateCcw, TestTube } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface EmailLog {
   id: string;
@@ -44,6 +49,10 @@ export default function AdminEmailReport() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [retrying, setRetrying] = useState<string | null>(null);
+  const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [testSending, setTestSending] = useState(false);
 
   const loadLogs = async () => {
     setLoading(true);
@@ -92,6 +101,66 @@ export default function AdminEmailReport() {
     );
   };
 
+  const handleRetry = async (log: EmailLog) => {
+    setRetrying(log.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-digital-delivery-email', {
+        body: {
+          order_id: log.order_id,
+          order_number: 'RETRY',
+          customer_email: log.recipient_email,
+          product_name: log.subject || 'Retry Email',
+          custom_message: `This is a retry of a previously failed email.`,
+          download_link: undefined,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success('ইমেইল আবার পাঠানো হয়েছে!');
+        loadLogs();
+      } else {
+        toast.error(data?.message || 'Retry failed');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Retry failed');
+    } finally {
+      setRetrying(null);
+    }
+  };
+
+  const handleTestSend = async () => {
+    if (!testEmail) {
+      toast.error('ইমেইল এড্রেস দিন');
+      return;
+    }
+    setTestSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-digital-delivery-email', {
+        body: {
+          order_number: 'MANUAL',
+          customer_email: testEmail,
+          product_name: '✅ Test Email - Email System Working',
+          custom_message: 'এটি একটি টেস্ট ইমেইল। আপনার ইমেইল সিস্টেম সঠিকভাবে কাজ করছে!\n\nThis is a test email. Your email system is working correctly!',
+        },
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success('টেস্ট ইমেইল পাঠানো হয়েছে!');
+        setTestDialogOpen(false);
+        setTestEmail('');
+        loadLogs();
+      } else {
+        toast.error(data?.message || 'টেস্ট ইমেইল পাঠানো যায়নি');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'টেস্ট ইমেইল পাঠানো যায়নি');
+    } finally {
+      setTestSending(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,10 +168,16 @@ export default function AdminEmailReport() {
           <h1 className="text-3xl font-bold text-foreground">Email Report</h1>
           <p className="text-muted-foreground">Track delivery status of all sent emails</p>
         </div>
-        <Button variant="outline" onClick={loadLogs} disabled={loading} className="gap-2">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setTestDialogOpen(true)} className="gap-2">
+            <TestTube className="h-4 w-4" />
+            Test Send
+          </Button>
+          <Button variant="outline" onClick={loadLogs} disabled={loading} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -204,6 +279,7 @@ export default function AdminEmailReport() {
                   <TableHead>Sent At</TableHead>
                   <TableHead>Delivered At</TableHead>
                   <TableHead>Details</TableHead>
+                  <TableHead className="w-[80px]">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -223,11 +299,25 @@ export default function AdminEmailReport() {
                     <TableCell className="text-sm text-muted-foreground">
                       {log.bounce_reason || log.failure_reason || '—'}
                     </TableCell>
+                    <TableCell>
+                      {(log.status === 'failed' || log.status === 'bounced') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRetry(log)}
+                          disabled={retrying === log.id}
+                          className="gap-1 text-xs"
+                        >
+                          <RotateCcw className={`h-3 w-3 ${retrying === log.id ? 'animate-spin' : ''}`} />
+                          Retry
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       No email logs found
                     </TableCell>
                   </TableRow>
@@ -237,6 +327,33 @@ export default function AdminEmailReport() {
           )}
         </CardContent>
       </Card>
+
+      {/* Test Send Dialog */}
+      <Dialog open={testDialogOpen} onOpenChange={setTestDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>টেস্ট ইমেইল পাঠান</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>ইমেইল এড্রেস</Label>
+              <Input
+                type="email"
+                placeholder="test@example.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTestDialogOpen(false)}>বাতিল</Button>
+            <Button onClick={handleTestSend} disabled={testSending} className="gap-2">
+              {testSending ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              পাঠান
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
