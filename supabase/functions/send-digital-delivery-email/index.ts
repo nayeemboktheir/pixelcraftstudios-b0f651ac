@@ -135,8 +135,25 @@ serve(async (req) => {
 
     console.log('Digital delivery email sent:', emailResponse);
 
-    // Log the email in email_logs table
     const resendEmailId = emailResponse?.data?.id || emailResponse?.id || null;
+
+    // Check if Resend returned an error
+    if (emailResponse?.error) {
+      await supabase.from('email_logs').insert({
+        order_id: body.order_id && !isManual ? body.order_id : null,
+        resend_email_id: resendEmailId,
+        recipient_email: body.customer_email,
+        subject: emailSubject,
+        status: 'failed',
+        failed_at: new Date().toISOString(),
+        failure_reason: emailResponse.error.message || 'Send failed',
+      });
+      return new Response(JSON.stringify({ success: false, message: emailResponse.error.message }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     await supabase.from('email_logs').insert({
       order_id: body.order_id && !isManual ? body.order_id : null,
       resend_email_id: resendEmailId,
@@ -145,7 +162,6 @@ serve(async (req) => {
       status: 'sent',
     });
 
-    // Update order status to email_sent (only for real orders)
     if (body.order_id && !isManual) {
       await supabase
         .from('orders')
@@ -159,6 +175,22 @@ serve(async (req) => {
     });
   } catch (error: any) {
     console.error('Error sending digital delivery email:', error);
+
+    // Log failed attempt
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (supabaseUrl && serviceKey) {
+      const sb = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+      const body2 = await req.clone().json().catch(() => ({}));
+      await sb.from('email_logs').insert({
+        recipient_email: body2.customer_email || 'unknown',
+        subject: body2.product_name || 'unknown',
+        status: 'failed',
+        failed_at: new Date().toISOString(),
+        failure_reason: error.message,
+      }).catch(() => {});
+    }
+
     return new Response(JSON.stringify({ success: false, error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
