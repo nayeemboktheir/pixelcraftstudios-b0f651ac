@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,7 +31,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Search, Eye, Package, Truck, CheckCircle, XCircle, Clock, Send, Printer, Globe, UserPlus, Plus, Check, Tag, RefreshCw, RotateCcw, Loader2, UserCheck, History, Trash2, Calendar, Edit, BookOpen, Mail, Download, Link } from 'lucide-react';
+import { Search, Eye, Package, CheckCircle, XCircle, Clock, Printer, Globe, UserPlus, Plus, Tag, Loader2, UserCheck, History, Trash2, Calendar, Edit, BookOpen, Mail, Link } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,21 +47,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
-import { CourierHistoryDialog } from '@/components/admin/CourierHistoryDialog';
-import { CombinedCourierHistoryInline } from '@/components/admin/CombinedCourierHistoryInline';
 import { InvoicePrintDialog } from '@/components/admin/InvoicePrintDialog';
 import { StickerPrintDialog } from '@/components/admin/StickerPrintDialog';
 import { ManualOrderDialog } from '@/components/admin/ManualOrderDialog';
 import { OrderEditDialog } from '@/components/admin/OrderEditDialog';
-
-interface SteadfastStatus {
-  tracking_code: string;
-  delivery_status?: string;
-  current_status?: string;
-  rider_name?: string;
-  rider_phone?: string;
-  error?: string;
-}
 
 interface OrderItem {
   id: string;
@@ -106,30 +95,17 @@ const sourceOptions = [
 
 const statusOptions = [
   { value: 'pending', label: 'Pending', icon: Clock, color: 'bg-yellow-500' },
-  { value: 'processing', label: 'Processing', icon: Package, color: 'bg-blue-500' },
   { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'bg-teal-500' },
-  { value: 'shipped', label: 'Shipped', icon: Truck, color: 'bg-purple-500' },
-  { value: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'bg-green-500' },
-  { value: 'email_sent', label: 'Email Sent', icon: Mail, color: 'bg-indigo-500' },
-  { value: 'completed', label: 'Completed', icon: CheckCircle, color: 'bg-emerald-500' },
-  { value: 'returned', label: 'Returned', icon: XCircle, color: 'bg-orange-500' },
-  { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500' },
-];
-
-const digitalStatusOptions = [
-  { value: 'pending', label: 'Pending', icon: Clock, color: 'bg-yellow-500' },
   { value: 'email_sent', label: 'Email Sent', icon: Mail, color: 'bg-indigo-500' },
   { value: 'completed', label: 'Completed', icon: CheckCircle, color: 'bg-emerald-500' },
   { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500' },
 ];
 
-// Get order count by phone number for repeat customer detection
 const getOrderCountByPhone = (orders: Order[], phone: string): number => {
   const normalizedPhone = phone.replace(/\D/g, '').slice(-11);
   return orders.filter(o => o.shipping_phone.replace(/\D/g, '').slice(-11) === normalizedPhone).length;
 };
 
-// Get previous orders for a phone number
 const getPreviousOrdersByPhone = (orders: Order[], phone: string, excludeOrderId?: string): Order[] => {
   const normalizedPhone = phone.replace(/\D/g, '').slice(-11);
   return orders
@@ -143,49 +119,34 @@ export default function AdminOrders() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
-  const [steadfastFilter, setSteadfastFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [trackingNumber, setTrackingNumber] = useState('');
   const [updating, setUpdating] = useState(false);
-  const [sendingToSteadfast, setSendingToSteadfast] = useState(false);
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
-  const [bulkSending, setBulkSending] = useState(false);
   const [bulkStatusChanging, setBulkStatusChanging] = useState(false);
   const [isInvoiceDialogOpen, setIsInvoiceDialogOpen] = useState(false);
   const [isStickerDialogOpen, setIsStickerDialogOpen] = useState(false);
   const [isManualOrderOpen, setIsManualOrderOpen] = useState(false);
   const [isEditOrderOpen, setIsEditOrderOpen] = useState(false);
   const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
-  const [steadfastStatuses, setSteadfastStatuses] = useState<Record<string, SteadfastStatus>>({});
-  const [loadingStatuses, setLoadingStatuses] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [invoiceNote, setInvoiceNote] = useState('');
-  const [steadfastNote, setSteadfastNote] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailOrder, setEmailOrder] = useState<Order | null>(null);
   const [downloadLink, setDownloadLink] = useState('');
 
-  const isDigitalView = sourceFilter === 'landing_page';
-
-  // Helper to extract email from landing_page order's shipping_street field
   const extractEmail = (order: Order): string => {
     const match = order.shipping_street?.match(/Email:\s*(.+)/i);
     return match ? match[1].trim() : '';
   };
 
-  // Get the appropriate status options based on order source
-  const getStatusOptionsForOrder = (order: Order) => {
-    return order.order_source === 'landing_page' ? digitalStatusOptions : statusOptions;
-  };
-
-  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products%2Fn8n_Masterclass.pdf';
+  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/ebooks/AI_Prompt_Mastery.pdf';
 
   const openEmailDialog = (order: Order) => {
     setEmailOrder(order);
@@ -226,7 +187,6 @@ export default function AdminOrders() {
       if (data?.success) {
         toast.success('ইমেইল সফলভাবে পাঠানো হয়েছে!');
         setEmailDialogOpen(false);
-        // Reload orders to reflect status change
         loadOrders();
       } else {
         toast.error(data?.message || 'ইমেইল পাঠাতে সমস্যা হয়েছে');
@@ -259,42 +219,6 @@ export default function AdminOrders() {
     }
   };
 
-  // Fetch Steadfast statuses for orders with tracking numbers
-  const fetchSteadfastStatuses = useCallback(async () => {
-    const ordersWithTracking = orders.filter(o => o.tracking_number);
-    if (ordersWithTracking.length === 0) return;
-
-    setLoadingStatuses(true);
-    try {
-      const trackingCodes = ordersWithTracking.map(o => o.tracking_number!);
-      
-      const { data, error } = await supabase.functions.invoke('steadfast-status', {
-        body: { tracking_codes: trackingCodes },
-      });
-
-      if (error) {
-        console.error('Failed to fetch Steadfast statuses:', error);
-        toast.error('Failed to fetch delivery statuses');
-        return;
-      }
-
-      if (data?.results) {
-        setSteadfastStatuses(data.results);
-      }
-    } catch (error) {
-      console.error('Error fetching Steadfast statuses:', error);
-    } finally {
-      setLoadingStatuses(false);
-    }
-  }, [orders]);
-
-  // Auto-fetch statuses when orders load
-  useEffect(() => {
-    if (orders.length > 0) {
-      fetchSteadfastStatuses();
-    }
-  }, [orders.length]); // Only trigger when orders change
-
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.order_number.toLowerCase().includes(search.toLowerCase()) ||
       order.shipping_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -302,7 +226,6 @@ export default function AdminOrders() {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesSource = sourceFilter === 'all' || order.order_source === sourceFilter;
     
-    // Date filter
     const orderDate = new Date(order.created_at);
     orderDate.setHours(0, 0, 0, 0);
     
@@ -318,47 +241,9 @@ export default function AdminOrders() {
       matchesDate = matchesDate && orderDate <= toDate;
     }
     
-    // Steadfast filter
-    let matchesSteadfast = true;
-    if (steadfastFilter !== 'all' && order.tracking_number) {
-      const sfStatus = steadfastStatuses[order.tracking_number];
-      const deliveryStatus = sfStatus?.delivery_status?.toLowerCase() || sfStatus?.current_status?.toLowerCase() || '';
-      
-      if (steadfastFilter === 'returned') {
-        matchesSteadfast = deliveryStatus.includes('return') || deliveryStatus.includes('cancelled');
-      } else if (steadfastFilter === 'delivered') {
-        matchesSteadfast = deliveryStatus.includes('delivered');
-      } else if (steadfastFilter === 'in_transit') {
-        matchesSteadfast = deliveryStatus.includes('transit') || deliveryStatus.includes('picked') || deliveryStatus.includes('hub');
-      } else if (steadfastFilter === 'pending_delivery') {
-        matchesSteadfast = deliveryStatus.includes('pending') || deliveryStatus === '';
-      }
-    } else if (steadfastFilter !== 'all' && !order.tracking_number) {
-      matchesSteadfast = false;
-    }
-    
-    return matchesSearch && matchesStatus && matchesSource && matchesSteadfast && matchesDate;
+    return matchesSearch && matchesStatus && matchesSource && matchesDate;
   });
 
-  // Count for Steadfast filters
-  const getSteadfastCount = (filterType: string) => {
-    return orders.filter(order => {
-      if (!order.tracking_number) return false;
-      const sfStatus = steadfastStatuses[order.tracking_number];
-      const deliveryStatus = sfStatus?.delivery_status?.toLowerCase() || sfStatus?.current_status?.toLowerCase() || '';
-      
-      if (filterType === 'returned') {
-        return deliveryStatus.includes('return') || deliveryStatus.includes('cancelled');
-      } else if (filterType === 'delivered') {
-        return deliveryStatus.includes('delivered');
-      } else if (filterType === 'in_transit') {
-        return deliveryStatus.includes('transit') || deliveryStatus.includes('picked') || deliveryStatus.includes('hub');
-      }
-      return false;
-    }).length;
-  };
-
-  // Calculate counts for each status
   const getStatusCount = (status: string) => {
     return orders.filter(order => {
       const matchesSource = sourceFilter === 'all' || order.order_source === sourceFilter;
@@ -366,7 +251,6 @@ export default function AdminOrders() {
     }).length;
   };
 
-  // Calculate counts for each source
   const getSourceCount = (source: string) => {
     return orders.filter(order => order.order_source === source).length;
   };
@@ -374,7 +258,6 @@ export default function AdminOrders() {
   const getSourceBadge = (source: string) => {
     const sourceOption = sourceOptions.find(s => s.value === source);
     if (!sourceOption) return <Badge variant="outline">{source || 'web'}</Badge>;
-
     const Icon = sourceOption.icon;
     return (
       <Badge variant="outline" className="gap-1">
@@ -386,9 +269,7 @@ export default function AdminOrders() {
 
   const openOrderDetail = (order: Order) => {
     setSelectedOrder(order);
-    setTrackingNumber(order.tracking_number || '');
     setInvoiceNote(order.invoice_note || '');
-    setSteadfastNote(order.steadfast_note || '');
     setIsDetailOpen(true);
   };
 
@@ -398,21 +279,15 @@ export default function AdminOrders() {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({
-          invoice_note: invoiceNote || null,
-          steadfast_note: steadfastNote || null,
-        })
+        .update({ invoice_note: invoiceNote || null })
         .eq('id', selectedOrder.id);
 
       if (error) throw error;
       
-      // Update local state
       setOrders(prev => prev.map(o => 
-        o.id === selectedOrder.id 
-          ? { ...o, invoice_note: invoiceNote || null, steadfast_note: steadfastNote || null }
-          : o
+        o.id === selectedOrder.id ? { ...o, invoice_note: invoiceNote || null } : o
       ));
-      setSelectedOrder({ ...selectedOrder, invoice_note: invoiceNote || null, steadfast_note: steadfastNote || null });
+      setSelectedOrder({ ...selectedOrder, invoice_note: invoiceNote || null });
       toast.success('Notes saved');
     } catch (error) {
       toast.error('Failed to save notes');
@@ -424,122 +299,17 @@ export default function AdminOrders() {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdating(true);
     try {
-      await updateOrderStatus(orderId, newStatus, trackingNumber || undefined);
+      await updateOrderStatus(orderId, newStatus);
       toast.success('Order status updated');
-      
-      // Send SMS notification for status change
-      const order = orders.find(o => o.id === orderId);
-      if (order) {
-        sendStatusSms(order, newStatus);
-
-      }
-      
       loadOrders();
       
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus, tracking_number: trackingNumber });
+        setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
     } catch (error) {
       toast.error('Failed to update order status');
     } finally {
       setUpdating(false);
-    }
-  };
-
-  const sendStatusSms = async (order: Order, newStatus: string) => {
-    try {
-      // Check if auto-send is enabled
-      const { data: smsSettings } = await supabase
-        .from('admin_settings')
-        .select('key, value')
-        .in('key', ['sms_enabled', 'sms_auto_send_status_change']);
-
-      const settings: Record<string, string> = {};
-      smsSettings?.forEach((item) => {
-        settings[item.key] = item.value;
-      });
-
-      if (settings.sms_enabled !== 'true' || settings.sms_auto_send_status_change !== 'true') {
-        return;
-      }
-
-      // Map status to template key
-      const statusTemplateMap: Record<string, string> = {
-        'processing': 'order_processing',
-        'confirmed': 'order_confirmed',
-        'shipped': 'order_shipped',
-        'delivered': 'order_delivered',
-        'cancelled': 'order_cancelled',
-      };
-
-      const templateKey = statusTemplateMap[newStatus];
-      if (!templateKey) return;
-
-      const { data, error } = await supabase.functions.invoke('send-sms', {
-        body: {
-          phone: order.shipping_phone,
-          template_key: templateKey,
-          order_id: order.id,
-          variables: {
-            customer_name: order.shipping_name,
-            order_number: order.order_number,
-            total: order.total.toString(),
-            tracking_number: trackingNumber || order.tracking_number || '',
-          },
-        },
-      });
-
-      if (error) {
-        console.error('SMS error:', error);
-      } else if (data?.success) {
-        toast.success('SMS notification sent');
-      }
-    } catch (error) {
-      console.error('Failed to send status SMS:', error);
-    }
-  };
-
-  const handleSendToSteadfast = async (order: Order) => {
-    setSendingToSteadfast(true);
-    try {
-      const fullAddress = `${order.shipping_street}, ${order.shipping_district}, ${order.shipping_city}${order.shipping_postal_code ? `, ${order.shipping_postal_code}` : ''}`;
-      
-      // Use steadfast_note if available, otherwise fall back to notes, then to item list
-      const noteToSend = order.steadfast_note || order.notes || `Order items: ${order.order_items.map(i => `${i.product_name}${i.variation_name ? ` (${i.variation_name})` : ''} x${i.quantity}`).join(', ')}`;
-      
-      const { data, error } = await supabase.functions.invoke('steadfast-courier', {
-        body: {
-          orderId: order.id,
-          invoice: order.order_number,
-          recipient_name: order.shipping_name,
-          recipient_phone: order.shipping_phone,
-          recipient_address: fullAddress,
-          cod_amount: order.payment_method === 'cod' ? Number(order.total) : 0,
-          note: noteToSend,
-        },
-      });
-
-      if (error) {
-        console.error('Steadfast error:', error);
-        toast.error(error.message || 'Failed to send order to Steadfast');
-        return;
-      }
-
-      if (data?.error) {
-        toast.error(data.error);
-        return;
-      }
-
-      toast.success('Order sent to Steadfast successfully!');
-      if (data?.tracking_code) {
-        setTrackingNumber(data.tracking_code);
-      }
-      loadOrders();
-    } catch (error) {
-      console.error('Failed to send to Steadfast:', error);
-      toast.error('Failed to send order to Steadfast');
-    } finally {
-      setSendingToSteadfast(false);
     }
   };
 
@@ -561,62 +331,6 @@ export default function AdminOrders() {
     }
   };
 
-  const handleBulkSendToSteadfast = async () => {
-    if (selectedOrderIds.size === 0) {
-      toast.error('Please select orders to send');
-      return;
-    }
-
-    setBulkSending(true);
-    try {
-      const ordersToSend = orders.filter(o => selectedOrderIds.has(o.id));
-      
-      const orderPayloads = ordersToSend.map(order => {
-        const fullAddress = `${order.shipping_street}, ${order.shipping_district}, ${order.shipping_city}${order.shipping_postal_code ? `, ${order.shipping_postal_code}` : ''}`;
-        // Use steadfast_note if available, otherwise fall back to notes, then to item list
-        const noteToSend = order.steadfast_note || order.notes || `Order items: ${order.order_items.map(i => `${i.product_name}${i.variation_name ? ` (${i.variation_name})` : ''} x${i.quantity}`).join(', ')}`;
-        return {
-          orderId: order.id,
-          invoice: order.order_number,
-          recipient_name: order.shipping_name,
-          recipient_phone: order.shipping_phone,
-          recipient_address: fullAddress,
-          cod_amount: order.payment_method === 'cod' ? Number(order.total) : 0,
-          note: noteToSend,
-        };
-      });
-
-      const { data, error } = await supabase.functions.invoke('steadfast-courier', {
-        body: { orders: orderPayloads },
-      });
-
-      if (error) {
-        console.error('Bulk Steadfast error:', error);
-        toast.error(error.message || 'Failed to send orders to Steadfast');
-        return;
-      }
-
-      if (data?.results) {
-        const successCount = data.results.filter((r: { success: boolean }) => r.success).length;
-        const failCount = data.results.filter((r: { success: boolean }) => !r.success).length;
-        
-        if (failCount > 0) {
-          toast.warning(`Sent ${successCount} orders, ${failCount} failed`);
-        } else {
-          toast.success(`Successfully sent ${successCount} orders to Steadfast`);
-        }
-      }
-
-      setSelectedOrderIds(new Set());
-      loadOrders();
-    } catch (error) {
-      console.error('Failed to bulk send to Steadfast:', error);
-      toast.error('Failed to send orders to Steadfast');
-    } finally {
-      setBulkSending(false);
-    }
-  };
-
   const handleBulkStatusChange = async (newStatus: string) => {
     if (selectedOrderIds.size === 0) {
       toast.error('Please select orders to update');
@@ -632,7 +346,6 @@ export default function AdminOrders() {
       for (const order of ordersToUpdate) {
         try {
           await updateOrderStatus(order.id, newStatus);
-          sendStatusSms(order, newStatus);
           successCount++;
         } catch (error) {
           console.error(`Failed to update order ${order.order_number}:`, error);
@@ -662,7 +375,6 @@ export default function AdminOrders() {
     setDeleting(true);
     try {
       await deleteOrder(orderToDelete.id);
-      
       toast.success(`Order ${orderToDelete.order_number} deleted successfully`);
       setIsDeleteDialogOpen(false);
       setOrderToDelete(null);
@@ -681,88 +393,15 @@ export default function AdminOrders() {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleTogglePrinted = async (orderId: string, currentValue: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ is_printed: !currentValue })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      setOrders(prev => prev.map(o => 
-        o.id === orderId ? { ...o, is_printed: !currentValue } : o
-      ));
-      
-      toast.success(!currentValue ? 'Marked as printed' : 'Marked as not printed');
-    } catch (error) {
-      toast.error('Failed to update print status');
-    }
-  };
-
   const getStatusBadge = (status: string) => {
     const statusOption = statusOptions.find(s => s.value === status);
     if (!statusOption) return <Badge>{status}</Badge>;
-
     const Icon = statusOption.icon;
     return (
       <Badge className={`${statusOption.color} text-white gap-1`}>
         <Icon className="h-3 w-3" />
         {statusOption.label}
       </Badge>
-    );
-  };
-
-  const getSteadfastStatusBadge = (trackingNumber: string | null) => {
-    if (!trackingNumber) {
-      return <span className="text-muted-foreground text-xs">-</span>;
-    }
-
-    const sfStatus = steadfastStatuses[trackingNumber];
-    
-    if (!sfStatus) {
-      if (loadingStatuses) {
-        return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
-      }
-      return <span className="text-muted-foreground text-xs">Loading...</span>;
-    }
-
-    if (sfStatus.error) {
-      return <Badge variant="outline" className="text-xs">Error</Badge>;
-    }
-
-    const deliveryStatus = sfStatus.delivery_status || sfStatus.current_status || 'Unknown';
-    const statusLower = deliveryStatus.toLowerCase();
-    
-    let color = 'bg-gray-500';
-    let Icon = Clock;
-    
-    if (statusLower.includes('delivered')) {
-      color = 'bg-green-500';
-      Icon = CheckCircle;
-    } else if (statusLower.includes('return') || statusLower.includes('cancelled')) {
-      color = 'bg-red-500';
-      Icon = RotateCcw;
-    } else if (statusLower.includes('transit') || statusLower.includes('picked') || statusLower.includes('hub')) {
-      color = 'bg-blue-500';
-      Icon = Truck;
-    } else if (statusLower.includes('pending')) {
-      color = 'bg-yellow-500';
-      Icon = Clock;
-    }
-
-    return (
-      <div className="space-y-1">
-        <Badge className={`${color} text-white gap-1 text-xs`}>
-          <Icon className="h-3 w-3" />
-          {deliveryStatus}
-        </Badge>
-        {sfStatus.rider_name && (
-          <div className="text-xs text-muted-foreground">
-            Rider: {sfStatus.rider_name}
-          </div>
-        )}
-      </div>
     );
   };
 
@@ -831,7 +470,7 @@ export default function AdminOrders() {
       <div className="overflow-x-auto">
         <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
           <TabsList className="h-auto p-1 bg-muted/50 inline-flex w-auto min-w-full">
-            {(isDigitalView ? digitalStatusOptions : statusOptions).map((status) => (
+            {statusOptions.map((status) => (
               <TabsTrigger 
                 key={status.value} 
                 value={status.value}
@@ -856,64 +495,6 @@ export default function AdminOrders() {
         </Tabs>
       </div>
 
-      {/* Steadfast Status Filters - hide for digital products */}
-      {!isDigitalView && (
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-sm font-medium text-muted-foreground">Steadfast Status:</span>
-        <div className="flex gap-2">
-          <Button
-            variant={steadfastFilter === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSteadfastFilter('all')}
-          >
-            All
-          </Button>
-          <Button
-            variant={steadfastFilter === 'returned' ? 'destructive' : 'outline'}
-            size="sm"
-            onClick={() => setSteadfastFilter('returned')}
-            className="gap-1"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Returned ({getSteadfastCount('returned')})
-          </Button>
-          <Button
-            variant={steadfastFilter === 'delivered' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSteadfastFilter('delivered')}
-            className="gap-1 bg-green-600 hover:bg-green-700 data-[active=true]:bg-green-600"
-            data-active={steadfastFilter === 'delivered'}
-          >
-            <CheckCircle className="h-3 w-3" />
-            Delivered ({getSteadfastCount('delivered')})
-          </Button>
-          <Button
-            variant={steadfastFilter === 'in_transit' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSteadfastFilter('in_transit')}
-            className="gap-1"
-          >
-            <Truck className="h-3 w-3" />
-            In Transit ({getSteadfastCount('in_transit')})
-          </Button>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={fetchSteadfastStatuses}
-          disabled={loadingStatuses}
-          className="gap-1 ml-auto"
-        >
-          {loadingStatuses ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          Refresh Status
-        </Button>
-      </div>
-      )}
-
       <Card>
         <CardHeader>
         <div className="flex flex-col lg:flex-row gap-4">
@@ -927,7 +508,6 @@ export default function AdminOrders() {
               />
             </div>
             
-            {/* Date Filter */}
             <div className="flex items-center gap-2 flex-wrap">
               <Popover>
                 <PopoverTrigger asChild>
@@ -1017,20 +597,12 @@ export default function AdminOrders() {
                     <Tag className="h-4 w-4" />
                     Print {selectedOrderIds.size} Sticker{selectedOrderIds.size > 1 ? 's' : ''}
                   </Button>
-                  <Button
-                    onClick={handleBulkSendToSteadfast}
-                    disabled={bulkSending}
-                    className="gap-2"
-                  >
-                    <Send className="h-4 w-4" />
-                    {bulkSending ? 'Sending...' : `Send ${selectedOrderIds.size} to Steadfast`}
-                  </Button>
                 </>
               )}
             </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <Table className={isDigitalView ? "min-w-[900px]" : "min-w-[1400px]"}>
+          <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
@@ -1040,18 +612,15 @@ export default function AdminOrders() {
                   />
                 </TableHead>
                 <TableHead>Order</TableHead>
-                {!isDigitalView && <TableHead>Source</TableHead>}
+                <TableHead>Source</TableHead>
                 <TableHead>Customer</TableHead>
-                {isDigitalView && <TableHead>Email</TableHead>}
+                <TableHead>Email</TableHead>
                 <TableHead>Products</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
-                {!isDigitalView && <TableHead>Steadfast Status</TableHead>}
-                {!isDigitalView && <TableHead>Print</TableHead>}
                 <TableHead>Change Status</TableHead>
-                {!isDigitalView && <TableHead>Tracking</TableHead>}
                 <TableHead className="text-right sticky right-0 bg-background shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -1070,42 +639,32 @@ export default function AdminOrders() {
                   >
                     {order.order_number}
                   </TableCell>
-                  {!isDigitalView && <TableCell>{getSourceBadge(order.order_source)}</TableCell>}
+                  <TableCell>{getSourceBadge(order.order_source)}</TableCell>
                   <TableCell>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span 
-                            className="truncate cursor-pointer hover:text-primary hover:underline"
-                            onClick={() => openOrderDetail(order)}
-                          >
-                            {order.shipping_name}
-                          </span>
-                          {!isDigitalView && getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
-                            <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200">
-                              <UserCheck className="h-3 w-3" />
-                              Repeat
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-sm text-muted-foreground">{order.shipping_phone}</div>
-                        {!isDigitalView && <CombinedCourierHistoryInline phone={order.shipping_phone} className="mt-2" />}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span 
+                          className="truncate cursor-pointer hover:text-primary hover:underline"
+                          onClick={() => openOrderDetail(order)}
+                        >
+                          {order.shipping_name}
+                        </span>
+                        {getOrderCountByPhone(orders, order.shipping_phone) > 1 && (
+                          <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200">
+                            <UserCheck className="h-3 w-3" />
+                            Repeat
+                          </Badge>
+                        )}
                       </div>
-                      {!isDigitalView && (
-                      <div className="shrink-0 pt-1">
-                        <CourierHistoryDialog phone={order.shipping_phone} customerName={order.shipping_name} />
-                      </div>
-                      )}
+                      <div className="text-sm text-muted-foreground">{order.shipping_phone}</div>
                     </div>
                   </TableCell>
-                  {isDigitalView && (
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground">{extractEmail(order) || 'N/A'}</span>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">{extractEmail(order) || 'N/A'}</span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      {order.order_items.slice(0, 3).map((item, idx) => (
+                      {order.order_items.slice(0, 3).map((item) => (
                         <div
                           key={item.id}
                           className="relative w-10 h-10 rounded border bg-muted overflow-hidden shrink-0"
@@ -1144,26 +703,6 @@ export default function AdminOrders() {
                     </Badge>
                   </TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
-                  {!isDigitalView && <TableCell>{getSteadfastStatusBadge(order.tracking_number)}</TableCell>}
-                  {!isDigitalView && (
-                  <TableCell>
-                    <button
-                      onClick={() => handleTogglePrinted(order.id, order.is_printed)}
-                      className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
-                        order.is_printed 
-                          ? 'bg-green-100 text-green-600 hover:bg-green-200' 
-                          : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
-                      title={order.is_printed ? 'Printed - Click to unmark' : 'Not printed - Click to mark as printed'}
-                    >
-                      {order.is_printed ? (
-                        <Check className="h-5 w-5" />
-                      ) : (
-                        <Printer className="h-4 w-4" />
-                      )}
-                    </button>
-                  </TableCell>
-                  )}
                   <TableCell>
                     <Select
                       value={order.status}
@@ -1174,7 +713,7 @@ export default function AdminOrders() {
                         <SelectValue placeholder="Change" />
                       </SelectTrigger>
                       <SelectContent>
-                        {getStatusOptionsForOrder(order).map((status) => {
+                        {statusOptions.map((status) => {
                           const Icon = status.icon;
                           return (
                             <SelectItem key={status.value} value={status.value}>
@@ -1188,25 +727,6 @@ export default function AdminOrders() {
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  {!isDigitalView && (
-                  <TableCell>
-                    {order.tracking_number ? (
-                      <a 
-                        href={`https://steadfast.com.bd/t/${order.tracking_number}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex"
-                      >
-                        <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                          <Truck className="h-3 w-3" />
-                          {order.tracking_number}
-                        </Badge>
-                      </a>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Not sent</span>
-                    )}
-                  </TableCell>
-                  )}
                   <TableCell className="text-right sticky right-0 bg-background shadow-[-2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                     <div className="flex items-center justify-end gap-1">
                       <Button
@@ -1217,17 +737,15 @@ export default function AdminOrders() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {order.order_source === 'landing_page' && order.status === 'pending' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEmailDialog(order)}
-                          title="Send download email"
-                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEmailDialog(order)}
+                        title="Send download email"
+                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -1243,7 +761,7 @@ export default function AdminOrders() {
               ))}
               {filteredOrders.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={13} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
                     No orders found
                   </TableCell>
                 </TableRow>
@@ -1264,7 +782,7 @@ export default function AdminOrders() {
                 <div>
                   <h3 className="font-medium mb-2 flex items-center gap-2">
                     Customer Information
-                    {selectedOrder.order_source !== 'landing_page' && getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
+                    {getOrderCountByPhone(orders, selectedOrder.shipping_phone) > 1 && (
                       <Badge variant="secondary" className="gap-1 text-xs bg-amber-100 text-amber-700">
                         <UserCheck className="h-3 w-3" />
                         Repeat Customer
@@ -1274,18 +792,10 @@ export default function AdminOrders() {
                   <div className="text-sm space-y-1 text-muted-foreground">
                     <p>{selectedOrder.shipping_name}</p>
                     <p>{selectedOrder.shipping_phone}</p>
-                    {selectedOrder.order_source === 'landing_page' ? (
-                      <p className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        {extractEmail(selectedOrder) || 'No email'}
-                      </p>
-                    ) : (
-                      <>
-                        <p>{selectedOrder.shipping_street}</p>
-                        <p>{selectedOrder.shipping_district}, {selectedOrder.shipping_city}</p>
-                        {selectedOrder.shipping_postal_code && <p>{selectedOrder.shipping_postal_code}</p>}
-                      </>
-                    )}
+                    <p className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {extractEmail(selectedOrder) || 'No email'}
+                    </p>
                   </div>
                 </div>
                 <div>
@@ -1294,18 +804,11 @@ export default function AdminOrders() {
                     <p>Date: {format(new Date(selectedOrder.created_at), 'PPpp')}</p>
                     <p>Payment: {selectedOrder.payment_method.toUpperCase()}</p>
                     <p>Payment Status: {selectedOrder.payment_status}</p>
-                    {selectedOrder.order_source === 'landing_page' && (
-                      <p className="flex items-center gap-1 text-indigo-600 font-medium">
-                        <BookOpen className="h-3 w-3" />
-                        Digital Product
-                      </p>
-                    )}
                     {selectedOrder.notes && <p>Notes: {selectedOrder.notes}</p>}
                   </div>
                 </div>
               </div>
 
-              {/* Previous Orders Section */}
               {(() => {
                 const previousOrders = getPreviousOrdersByPhone(orders, selectedOrder.shipping_phone, selectedOrder.id);
                 if (previousOrders.length === 0) return null;
@@ -1365,10 +868,6 @@ export default function AdminOrders() {
                   <span>Subtotal</span>
                   <span>৳{Number(selectedOrder.subtotal).toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>Shipping</span>
-                  <span>৳{Number(selectedOrder.shipping_cost || 0).toFixed(0)}</span>
-                </div>
                 {selectedOrder.discount && Number(selectedOrder.discount) > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Discount</span>
@@ -1381,28 +880,16 @@ export default function AdminOrders() {
                 </div>
               </div>
 
-              {/* Notes Section */}
               <div className="border-t pt-4 space-y-4">
                 <h3 className="font-medium">Order Notes</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Invoice Note (shows on invoice)</Label>
-                    <Textarea
-                      value={invoiceNote}
-                      onChange={(e) => setInvoiceNote(e.target.value)}
-                      placeholder="Note to show on printed invoice..."
-                      rows={2}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Steadfast Note (sent to courier)</Label>
-                    <Textarea
-                      value={steadfastNote}
-                      onChange={(e) => setSteadfastNote(e.target.value)}
-                      placeholder="Note to send to Steadfast..."
-                      rows={2}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Invoice Note (shows on invoice)</Label>
+                  <Textarea
+                    value={invoiceNote}
+                    onChange={(e) => setInvoiceNote(e.target.value)}
+                    placeholder="Note to show on printed invoice..."
+                    rows={2}
+                  />
                 </div>
                 <Button 
                   variant="outline" 
@@ -1416,36 +903,24 @@ export default function AdminOrders() {
 
               <div className="border-t pt-4 space-y-4">
                 <h3 className="font-medium">Update Status</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Status</Label>
-                    <Select
-                      value={selectedOrder.status}
-                      onValueChange={(value) => handleStatusChange(selectedOrder.id, value)}
-                      disabled={updating}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getStatusOptionsForOrder(selectedOrder).map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {selectedOrder.order_source !== 'landing_page' && (
-                  <div className="space-y-2">
-                    <Label>Tracking Number</Label>
-                    <Input
-                      value={trackingNumber}
-                      onChange={(e) => setTrackingNumber(e.target.value)}
-                      placeholder="Enter tracking number"
-                    />
-                  </div>
-                  )}
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select
+                    value={selectedOrder.status}
+                    onValueChange={(value) => handleStatusChange(selectedOrder.id, value)}
+                    disabled={updating}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status.value} value={status.value}>
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <Button
@@ -1459,28 +934,17 @@ export default function AdminOrders() {
                     <Edit className="h-4 w-4" />
                     Edit Order
                   </Button>
-                  {selectedOrder.order_source === 'landing_page' ? (
-                    <Button
-                      onClick={() => {
-                        setIsDetailOpen(false);
-                        openEmailDialog(selectedOrder);
-                      }}
-                      disabled={selectedOrder.status === 'email_sent' || selectedOrder.status === 'completed'}
-                      className="flex-1 gap-2 bg-indigo-600 hover:bg-indigo-700"
-                    >
-                      <Mail className="h-4 w-4" />
-                      {selectedOrder.status === 'email_sent' ? 'Email Already Sent' : selectedOrder.status === 'completed' ? 'Completed' : 'Send Download Email'}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleSendToSteadfast(selectedOrder)}
-                      disabled={sendingToSteadfast || !!selectedOrder.tracking_number}
-                      className="flex-1"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {sendingToSteadfast ? 'Sending...' : selectedOrder.tracking_number ? 'Already Sent to Steadfast' : 'Send to Steadfast'}
-                    </Button>
-                  )}
+                  <Button
+                    onClick={() => {
+                      setIsDetailOpen(false);
+                      openEmailDialog(selectedOrder);
+                    }}
+                    disabled={selectedOrder.status === 'email_sent' || selectedOrder.status === 'completed'}
+                    className="flex-1 gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {selectedOrder.status === 'email_sent' ? 'Email Already Sent' : selectedOrder.status === 'completed' ? 'Completed' : 'Send Download Email'}
+                  </Button>
                   <Button
                     variant="destructive"
                     onClick={() => openDeleteDialog(selectedOrder)}
@@ -1496,7 +960,6 @@ export default function AdminOrders() {
         </DialogContent>
       </Dialog>
 
-      {/* Order Edit Dialog */}
       <OrderEditDialog
         order={orderToEdit}
         open={isEditOrderOpen}
@@ -1504,7 +967,6 @@ export default function AdminOrders() {
         onOrderUpdated={loadOrders}
       />
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1532,7 +994,6 @@ export default function AdminOrders() {
         open={isInvoiceDialogOpen}
         onOpenChange={setIsInvoiceDialogOpen}
         onOrdersPrinted={(orderIds) => {
-          // Update local state to reflect printed status
           setOrders(prev => prev.map(o => 
             orderIds.includes(o.id) ? { ...o, is_printed: true } : o
           ));
@@ -1558,7 +1019,6 @@ export default function AdminOrders() {
         onOrderCreated={loadOrders}
       />
 
-      {/* Digital Product Email Dialog */}
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
