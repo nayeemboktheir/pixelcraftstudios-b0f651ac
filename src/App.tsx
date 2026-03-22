@@ -314,6 +314,14 @@ const App = () => (
                   </AdminLayout>
                 }
               />
+              <Route
+                path="/admin/send-email"
+                element={
+                  <AdminLayout>
+                    <AdminSendEmail />
+                  </AdminLayout>
+                }
+              />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
