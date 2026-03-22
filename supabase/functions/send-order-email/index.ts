@@ -179,7 +179,7 @@ serve(async (req) => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: 'pixelcraft <noreply@pixelcraft.shop>',
+      from: 'pixelcraft <noreply@pixelcraftstudio.shop>',
       to: [settingsMap.notification_email],
       subject: `🛒 New Order #${body.order_number} - ৳${body.total.toFixed(2)}`,
       html: emailHtml,
