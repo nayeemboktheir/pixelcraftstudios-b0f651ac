@@ -54,6 +54,7 @@ import AdminSocialMedia from "@/pages/admin/AdminSocialMedia";
 import AdminReports from "@/pages/admin/AdminReports";
 import AdminHomePageEdit from "@/pages/admin/AdminHomePageEdit";
 import AdminSendEmail from "@/pages/admin/AdminSendEmail";
+import AdminEmailReport from "@/pages/admin/AdminEmailReport";
 const queryClient = new QueryClient();
 
 const App = () => (
