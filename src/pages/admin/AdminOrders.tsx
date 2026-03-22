@@ -650,6 +650,15 @@ export default function AdminOrders() {
                     <Tag className="h-4 w-4" />
                     Print {selectedOrderIds.size} Sticker{selectedOrderIds.size > 1 ? 's' : ''}
                   </Button>
+                  <Button
+                    variant="default"
+                    onClick={handleBulkSendEmail}
+                    disabled={bulkSendingEmail}
+                    className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {bulkSendingEmail ? 'Sending...' : `Send ${selectedOrderIds.size} Email${selectedOrderIds.size > 1 ? 's' : ''}`}
+                  </Button>
                 </>
               )}
             </div>
