@@ -200,6 +200,58 @@ export default function AdminOrders() {
     }
   };
 
+  const handleBulkSendEmail = async () => {
+    const selectedOrders = orders.filter(o => selectedOrderIds.has(o.id));
+    const validOrders = selectedOrders.filter(o => {
+      const email = extractEmail(o);
+      return email && o.status !== 'email_sent' && o.status !== 'completed';
+    });
+
+    if (validOrders.length === 0) {
+      toast.error('No valid orders to send email (missing email or already sent)');
+      return;
+    }
+
+    setBulkSendingEmail(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const order of validOrders) {
+      try {
+        const customerEmail = extractEmail(order);
+        const productName = order.order_items.map(i => i.product_name).join(', ');
+
+        const { data } = await supabase.functions.invoke('send-digital-delivery-email', {
+          body: {
+            order_id: order.id,
+            order_number: order.order_number,
+            customer_name: order.shipping_name,
+            customer_email: customerEmail,
+            download_link: defaultPdfLink,
+            product_name: productName,
+            product_image: order.order_items[0]?.product_image || '',
+            total: Number(order.total),
+          },
+        });
+
+        if (data?.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setBulkSendingEmail(false);
+    loadOrders();
+    setSelectedOrderIds(new Set());
+
+    if (successCount > 0) toast.success(`${successCount}টি ইমেইল সফলভাবে পাঠানো হয়েছে!`);
+    if (failCount > 0) toast.error(`${failCount}টি ইমেইল পাঠাতে ব্যর্থ হয়েছে`);
+  };
+
   const openEditDialog = (order: Order) => {
     setOrderToEdit(order);
     setIsEditOrderOpen(true);
