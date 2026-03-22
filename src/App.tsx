@@ -53,7 +53,7 @@ import AdminSiteSettings from "@/pages/admin/AdminSiteSettings";
 import AdminSocialMedia from "@/pages/admin/AdminSocialMedia";
 import AdminReports from "@/pages/admin/AdminReports";
 import AdminHomePageEdit from "@/pages/admin/AdminHomePageEdit";
-
+import AdminSendEmail from "@/pages/admin/AdminSendEmail";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -311,6 +311,14 @@ const App = () => (
                 element={
                   <AdminLayout>
                     <AdminHomePageEdit />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/send-email"
+                element={
+                  <AdminLayout>
+                    <AdminSendEmail />
                   </AdminLayout>
                 }
               />
