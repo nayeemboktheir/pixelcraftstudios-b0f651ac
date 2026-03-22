@@ -331,6 +331,65 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          bounce_reason: string | null
+          bounced_at: string | null
+          created_at: string
+          delivered_at: string | null
+          failed_at: string | null
+          failure_reason: string | null
+          id: string
+          order_id: string | null
+          recipient_email: string
+          resend_email_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          bounce_reason?: string | null
+          bounced_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          order_id?: string | null
+          recipient_email: string
+          resend_email_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bounce_reason?: string | null
+          bounced_at?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          failed_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          order_id?: string | null
+          recipient_email?: string
+          resend_email_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       home_page_content: {
         Row: {
           content: Json
