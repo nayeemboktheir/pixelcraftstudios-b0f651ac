@@ -137,6 +137,7 @@ export default function AdminOrders() {
   const [invoiceNote, setInvoiceNote] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [bulkSendingEmail, setBulkSendingEmail] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailOrder, setEmailOrder] = useState<Order | null>(null);
   const [downloadLink, setDownloadLink] = useState('');
@@ -197,6 +198,58 @@ export default function AdminOrders() {
     } finally {
       setSendingEmail(false);
     }
+  };
+
+  const handleBulkSendEmail = async () => {
+    const selectedOrders = orders.filter(o => selectedOrderIds.has(o.id));
+    const validOrders = selectedOrders.filter(o => {
+      const email = extractEmail(o);
+      return email && o.status !== 'email_sent' && o.status !== 'completed';
+    });
+
+    if (validOrders.length === 0) {
+      toast.error('No valid orders to send email (missing email or already sent)');
+      return;
+    }
+
+    setBulkSendingEmail(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const order of validOrders) {
+      try {
+        const customerEmail = extractEmail(order);
+        const productName = order.order_items.map(i => i.product_name).join(', ');
+
+        const { data } = await supabase.functions.invoke('send-digital-delivery-email', {
+          body: {
+            order_id: order.id,
+            order_number: order.order_number,
+            customer_name: order.shipping_name,
+            customer_email: customerEmail,
+            download_link: defaultPdfLink,
+            product_name: productName,
+            product_image: order.order_items[0]?.product_image || '',
+            total: Number(order.total),
+          },
+        });
+
+        if (data?.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setBulkSendingEmail(false);
+    loadOrders();
+    setSelectedOrderIds(new Set());
+
+    if (successCount > 0) toast.success(`${successCount}টি ইমেইল সফলভাবে পাঠানো হয়েছে!`);
+    if (failCount > 0) toast.error(`${failCount}টি ইমেইল পাঠাতে ব্যর্থ হয়েছে`);
   };
 
   const openEditDialog = (order: Order) => {
@@ -596,6 +649,15 @@ export default function AdminOrders() {
                   >
                     <Tag className="h-4 w-4" />
                     Print {selectedOrderIds.size} Sticker{selectedOrderIds.size > 1 ? 's' : ''}
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={handleBulkSendEmail}
+                    disabled={bulkSendingEmail}
+                    className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {bulkSendingEmail ? 'Sending...' : `Send ${selectedOrderIds.size} Email${selectedOrderIds.size > 1 ? 's' : ''}`}
                   </Button>
                 </>
               )}
