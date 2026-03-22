@@ -107,7 +107,7 @@ serve(async (req) => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: `${shopName} <onboarding@resend.dev>`,
+      from: `pixelcraft <noreply@pixelcraft.shop>`,
       to: [body.customer_email],
       subject: `🎉 আপনার প্রোডাক্ট রেডি - Order #${body.order_number}`,
       html: emailHtml,
