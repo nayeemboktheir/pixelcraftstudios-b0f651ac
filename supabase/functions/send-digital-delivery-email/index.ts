@@ -136,11 +136,13 @@ serve(async (req) => {
 
     console.log('Digital delivery email sent:', emailResponse);
 
-    // Update order status to email_sent
-    await supabase
-      .from('orders')
-      .update({ status: 'email_sent' })
-      .eq('id', body.order_id);
+    // Update order status to email_sent (only for real orders)
+    if (body.order_id && !isManual) {
+      await supabase
+        .from('orders')
+        .update({ status: 'email_sent' })
+        .eq('id', body.order_id);
+    }
 
     return new Response(JSON.stringify({ success: true, data: emailResponse }), {
       status: 200,
