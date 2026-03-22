@@ -176,7 +176,7 @@ export function ManualOrderDialog({ open, onOpenChange, onOrderCreated }: Manual
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
   const [selectedCustomerData, setSelectedCustomerData] = useState<PreviousCustomer | null>(null);
 
-  // Default shipping costs
+  // No delivery costs for digital products
   const SHIPPING_COSTS = {
     inside_dhaka: 60,
     outside_dhaka: 120,
