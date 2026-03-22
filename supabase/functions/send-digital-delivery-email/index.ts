@@ -37,7 +37,6 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    // Fetch email settings
     const { data: settings } = await supabase
       .from('admin_settings')
       .select('key, value')
@@ -135,6 +134,16 @@ serve(async (req) => {
     });
 
     console.log('Digital delivery email sent:', emailResponse);
+
+    // Log the email in email_logs table
+    const resendEmailId = emailResponse?.data?.id || emailResponse?.id || null;
+    await supabase.from('email_logs').insert({
+      order_id: body.order_id && !isManual ? body.order_id : null,
+      resend_email_id: resendEmailId,
+      recipient_email: body.customer_email,
+      subject: emailSubject,
+      status: 'sent',
+    });
 
     // Update order status to email_sent (only for real orders)
     if (body.order_id && !isManual) {

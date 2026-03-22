@@ -50,6 +50,7 @@ const adminNavItems = [
   { title: 'Order Protection', url: '/admin/order-protection', icon: Shield },
   { title: 'Contact Messages', url: '/admin/contact-submissions', icon: MessageSquare },
   { title: 'Send Email', url: '/admin/send-email', icon: Mail },
+  { title: 'Email Report', url: '/admin/email-report', icon: Mail },
   { title: 'Landing Pages', url: '/admin/landing-pages', icon: Megaphone },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Slider Settings', url: '/admin/banners', icon: Image },
