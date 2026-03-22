@@ -8,14 +8,15 @@ const corsHeaders = {
 };
 
 interface DigitalDeliveryRequest {
-  order_id: string;
+  order_id?: string;
   order_number: string;
-  customer_name: string;
+  customer_name?: string;
   customer_email: string;
-  download_link: string;
+  download_link?: string;
   product_name: string;
   product_image?: string;
-  total: number;
+  total?: number;
+  custom_message?: string;
 }
 
 serve(async (req) => {
