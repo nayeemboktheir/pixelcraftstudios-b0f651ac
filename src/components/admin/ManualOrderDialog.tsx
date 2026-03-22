@@ -177,10 +177,6 @@ export function ManualOrderDialog({ open, onOpenChange, onOrderCreated }: Manual
   const [selectedCustomerData, setSelectedCustomerData] = useState<PreviousCustomer | null>(null);
 
   // No delivery costs for digital products
-  const SHIPPING_COSTS = {
-    inside_dhaka: 60,
-    outside_dhaka: 120,
-  };
 
   const normalizedPhone = useMemo(() => normalizePhone(mobileNumber), [mobileNumber]);
 
