@@ -323,6 +323,14 @@ const App = () => (
                   </AdminLayout>
                 }
               />
+              <Route
+                path="/admin/email-report"
+                element={
+                  <AdminLayout>
+                    <AdminEmailReport />
+                  </AdminLayout>
+                }
+              />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
