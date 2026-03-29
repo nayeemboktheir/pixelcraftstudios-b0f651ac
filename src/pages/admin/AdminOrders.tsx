@@ -147,7 +147,7 @@ export default function AdminOrders() {
     return match ? match[1].trim() : '';
   };
 
-  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/ebooks/AI_Prompt_Mastery.pdf';
+  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
 
   const openEmailDialog = (order: Order) => {
     setEmailOrder(order);
