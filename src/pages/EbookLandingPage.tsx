@@ -87,7 +87,7 @@ export default function EbookLandingPage() {
       }
 
       // Auto-send digital delivery email with PDF download link
-      const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products%2Fn8n_Masterclass.pdf';
+      const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
       try {
         await supabase.functions.invoke('send-digital-delivery-email', {
           body: {
