@@ -5,6 +5,7 @@ import { CheckCircle, Package, Phone, Home, Truck, ArrowRight } from "lucide-rea
 import { motion } from "framer-motion";
 import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { useServerTracking } from "@/hooks/useServerTracking";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrderItem {
   productId: string;
@@ -24,6 +25,7 @@ interface OrderDetails {
   district?: string;
   fromLandingPage?: boolean;
   landingPageSlug?: string;
+  customerEmail?: string;
 }
 
 // Generate a unique event ID for deduplication between Pixel and CAPI
@@ -65,6 +67,30 @@ const OrderConfirmationPage = () => {
   const district = state?.district;
   const fromLandingPage = state?.fromLandingPage;
   const landingPageSlug = state?.landingPageSlug;
+  const customerEmail = state?.customerEmail;
+  const hasSentEmailRef = useRef(false);
+
+  // 0) Send PDF email AFTER payment confirmation (user landed back from payment gateway)
+  useEffect(() => {
+    if (!orderNumber || !customerEmail || hasSentEmailRef.current) return;
+    hasSentEmailRef.current = true;
+
+    const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
+    const productName = items.map(i => i.productName).join(', ') || 'AI Prompt Mastery (PDF)';
+
+    supabase.functions.invoke('send-digital-delivery-email', {
+      body: {
+        order_number: orderNumber,
+        customer_name: customerName || '',
+        customer_email: customerEmail,
+        download_link: pdfDownloadUrl,
+        product_name: productName,
+        total: total || 0,
+      },
+    }).catch((err) => {
+      console.error('[Email] Auto delivery email failed:', err);
+    });
+  }, [orderNumber, customerEmail, customerName, items, total]);
 
   // 1) Prepare event id + user data once (fast)
   useEffect(() => {

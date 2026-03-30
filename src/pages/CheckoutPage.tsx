@@ -470,7 +470,7 @@ const CheckoutPage = () => {
       sessionStorage.setItem('pending_order_confirmation', JSON.stringify(confirmationData));
 
       // Redirect to payment gateway
-      window.location.href = 'https://pg.eps.com.bd/StaticPaymentLink?id=14F685E8';
+      window.location.href = 'https://pg.eps.com.bd/DefaultPaymentLink?id=5F5EC3FE';
     } catch (error) {
       console.error('Order error:', error);
       const msg =

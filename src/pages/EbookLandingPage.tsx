@@ -86,25 +86,8 @@ export default function EbookLandingPage() {
         throw new Error(data?.error || 'অর্ডার করতে সমস্যা হয়েছে');
       }
 
-      // Auto-send digital delivery email with PDF download link
-      const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
-      try {
-        await supabase.functions.invoke('send-digital-delivery-email', {
-          body: {
-            order_id: data.orderId,
-            order_number: data.orderNumber,
-            customer_name: billingForm.name.trim(),
-            customer_email: billingForm.email.trim(),
-            download_link: pdfDownloadUrl,
-            product_name: 'n8n Masterclass (PDF)',
-            total: Number(data.total),
-          },
-        });
-      } catch (emailErr) {
-        console.error('Auto email failed, admin can send manually:', emailErr);
-      }
-
       // Store order confirmation data for after payment redirect
+      // PDF email will be sent AFTER payment is confirmed (on OrderConfirmationPage)
       const confirmationData = {
         orderNumber: data.orderNumber,
         customerName: billingForm.name,
@@ -117,11 +100,12 @@ export default function EbookLandingPage() {
           quantity: 1,
         }],
         fromLandingPage: true,
+        customerEmail: billingForm.email.trim(),
       };
       sessionStorage.setItem('pending_order_confirmation', JSON.stringify(confirmationData));
 
       // Redirect to payment gateway
-      window.location.href = 'https://pg.eps.com.bd/StaticPaymentLink?id=14F685E8';
+      window.location.href = 'https://pg.eps.com.bd/DefaultPaymentLink?id=5F5EC3FE';
     } catch (err: any) {
       toast({
         title: 'অর্ডার ব্যর্থ',
