@@ -15,6 +15,7 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
+import PaymentFailedPage from "@/pages/PaymentFailedPage";
 import HomePage from "@/pages/HomePage";
 import FashionHomePage from "@/pages/FashionHomePage";
 // EbookLandingPage is now database-driven via /lp/ebook
@@ -141,6 +142,8 @@ const App = () => (
               {/* Checkout & Auth */}
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+              <Route path="/payment-failed" element={<PaymentFailedPage />} />
+              <Route path="/payment-cancelled" element={<PaymentFailedPage />} />
               <Route path="/auth" element={<AuthPage />} />
 
               {/* Landing Pages */}
