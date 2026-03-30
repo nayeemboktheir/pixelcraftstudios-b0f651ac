@@ -142,6 +142,8 @@ const App = () => (
               {/* Checkout & Auth */}
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+              <Route path="/payment-failed" element={<PaymentFailedPage />} />
+              <Route path="/payment-cancelled" element={<PaymentFailedPage />} />
               <Route path="/auth" element={<AuthPage />} />
 
               {/* Landing Pages */}
