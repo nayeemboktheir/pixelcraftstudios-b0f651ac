@@ -5,6 +5,7 @@ import { CheckCircle, Package, Phone, Home, Truck, ArrowRight } from "lucide-rea
 import { motion } from "framer-motion";
 import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { useServerTracking } from "@/hooks/useServerTracking";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrderItem {
   productId: string;
