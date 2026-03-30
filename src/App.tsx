@@ -15,6 +15,7 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
+import PaymentFailedPage from "@/pages/PaymentFailedPage";
 import HomePage from "@/pages/HomePage";
 import FashionHomePage from "@/pages/FashionHomePage";
 // EbookLandingPage is now database-driven via /lp/ebook
