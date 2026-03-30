@@ -25,6 +25,7 @@ interface OrderDetails {
   district?: string;
   fromLandingPage?: boolean;
   landingPageSlug?: string;
+  customerEmail?: string;
 }
 
 // Generate a unique event ID for deduplication between Pixel and CAPI
