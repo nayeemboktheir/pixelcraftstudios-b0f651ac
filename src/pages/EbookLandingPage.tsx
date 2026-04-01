@@ -66,9 +66,9 @@ export default function EbookLandingPage() {
         body: {
           userId: null,
           items: [{
-            productId: 'ebook-n8n-masterclass',
+            productId: 'ai-prompt-mastery',
             quantity: 1,
-            productName: 'n8n Masterclass (PDF)',
+            productName: 'AI Prompt Mastery (PDF)',
             productImage: null,
             price: 199,
           }],
@@ -94,8 +94,8 @@ export default function EbookLandingPage() {
         phone: billingForm.phone || undefined,
         total: data.total,
         items: [{
-          productId: 'ebook-n8n-masterclass',
-          productName: 'n8n Masterclass',
+          productId: 'ai-prompt-mastery',
+          productName: 'AI Prompt Mastery',
           price: 199,
           quantity: 1,
         }],
