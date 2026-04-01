@@ -94,8 +94,8 @@ export default function EbookLandingPage() {
         phone: billingForm.phone || undefined,
         total: data.total,
         items: [{
-          productId: 'ebook-n8n-masterclass',
-          productName: 'n8n Masterclass',
+          productId: 'ai-prompt-mastery',
+          productName: 'AI Prompt Mastery',
           price: 199,
           quantity: 1,
         }],
