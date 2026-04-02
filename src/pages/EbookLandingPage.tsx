@@ -504,6 +504,7 @@ export default function EbookLandingPage() {
               </div>
 
               <div className="flex items-center justify-center gap-4 mb-6">
+                <span className="text-2xl line-through text-muted-foreground font-display">৳৩৯৯</span>
                 <span className="text-4xl font-bold text-accent font-display">৳১৯৯</span>
               </div>
 
@@ -567,7 +568,7 @@ export default function EbookLandingPage() {
                 {isSubmitting ? (
                   <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> অর্ডার হচ্ছে...</>
                 ) : (
-                  <><ShoppingBag className="mr-2 w-5 h-5" /> এখনই অর্ডার করুন — ৳১৯৯</>
+                  <><ShoppingBag className="mr-2 w-5 h-5" /> এখনই অর্ডার করুন — <span className="line-through opacity-70 mr-1">৳৩৯৯</span> ৳১৯৯</>
                 )}
               </Button>
               <p className="text-white/40 text-sm mt-4">🔒 সম্পূর্ণ নিরাপদ পেমেন্ট</p>
