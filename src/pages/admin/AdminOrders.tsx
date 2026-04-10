@@ -98,6 +98,7 @@ const statusOptions = [
   { value: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'bg-teal-500' },
   { value: 'email_sent', label: 'Email Sent', icon: Mail, color: 'bg-indigo-500' },
   { value: 'completed', label: 'Completed', icon: CheckCircle, color: 'bg-emerald-500' },
+  { value: 'email_failed', label: 'Email Failed', icon: XCircle, color: 'bg-orange-600' },
   { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-500' },
 ];
 
