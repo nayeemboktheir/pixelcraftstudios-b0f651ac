@@ -70,10 +70,25 @@ const OrderConfirmationPage = () => {
   const customerEmail = state?.customerEmail;
   const hasSentEmailRef = useRef(false);
 
-  // 0) Send PDF email AFTER payment confirmation (user landed back from payment gateway)
+  // 0) Update payment status to paid & send PDF email AFTER payment confirmation
   useEffect(() => {
     if (!orderNumber || !customerEmail || hasSentEmailRef.current) return;
     hasSentEmailRef.current = true;
+
+    // Update payment status to paid/completed
+    const updatePaymentStatus = async () => {
+      try {
+        const { error } = await supabase
+          .from('orders')
+          .update({ payment_status: 'paid', status: 'confirmed' })
+          .eq('order_number', orderNumber);
+        if (error) console.error('[Payment] Status update failed:', error);
+      } catch (err) {
+        console.error('[Payment] Status update error:', err);
+      }
+    };
+
+    updatePaymentStatus();
 
     const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
     const productName = items.map(i => i.productName).join(', ') || 'AI Prompt Mastery (PDF)';
