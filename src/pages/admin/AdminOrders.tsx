@@ -148,7 +148,7 @@ export default function AdminOrders() {
     return match ? match[1].trim() : '';
   };
 
-  const defaultPdfLink = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
+  const defaultPdfLink = 'https://pixelcraftstudios.lovable.app/download?file=ai-prompt-mastery';
 
   const openEmailDialog = (order: Order) => {
     setEmailOrder(order);

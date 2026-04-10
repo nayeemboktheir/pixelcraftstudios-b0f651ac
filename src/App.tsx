@@ -56,6 +56,7 @@ import AdminReports from "@/pages/admin/AdminReports";
 import AdminHomePageEdit from "@/pages/admin/AdminHomePageEdit";
 import AdminSendEmail from "@/pages/admin/AdminSendEmail";
 import AdminEmailReport from "@/pages/admin/AdminEmailReport";
+import DownloadPage from "@/pages/DownloadPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -73,6 +74,7 @@ const App = () => (
             <Routes>
               {/* Storefront Routes */}
               <Route path="/" element={<EbookLandingPage />} />
+              <Route path="/download" element={<DownloadPage />} />
               {/* /lp/ebook is now database-driven via /lp/:slug */}
               <Route
                 path="/products"
