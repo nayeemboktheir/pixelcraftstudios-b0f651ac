@@ -46,6 +46,26 @@ serve(async (req) => {
       case 'email.delivered':
         updates.status = 'delivered';
         updates.delivered_at = data.created_at || new Date().toISOString();
+        // Update associated order status to completed when email is delivered
+        {
+          const { data: emailLog } = await supabase
+            .from('email_logs')
+            .select('order_id')
+            .eq('resend_email_id', resendEmailId)
+            .maybeSingle();
+
+          if (emailLog?.order_id) {
+            const { error: orderError } = await supabase
+              .from('orders')
+              .update({ status: 'completed' })
+              .eq('id', emailLog.order_id);
+            if (orderError) {
+              console.error('Failed to update order status:', orderError);
+            } else {
+              console.log(`Order ${emailLog.order_id} marked as completed`);
+            }
+          }
+        }
         break;
       case 'email.bounced':
         updates.status = 'bounced';
