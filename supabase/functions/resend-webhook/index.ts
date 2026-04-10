@@ -71,6 +71,35 @@ serve(async (req) => {
         updates.status = 'bounced';
         updates.bounced_at = data.created_at || new Date().toISOString();
         updates.bounce_reason = data.bounce?.message || data.reason || 'Unknown bounce';
+        // Update order status to email_failed
+        {
+          const { data: emailLog } = await supabase
+            .from('email_logs')
+            .select('order_id')
+            .eq('resend_email_id', resendEmailId)
+            .maybeSingle();
+          if (emailLog?.order_id) {
+            await supabase.from('orders').update({ status: 'email_failed' }).eq('id', emailLog.order_id);
+            console.log(`Order ${emailLog.order_id} marked as email_failed (bounced)`);
+          }
+        }
+        break;
+      case 'email.failed':
+        updates.status = 'failed';
+        updates.failed_at = data.created_at || new Date().toISOString();
+        updates.failure_reason = data.error?.message || data.reason || 'Unknown failure';
+        // Update order status to email_failed
+        {
+          const { data: emailLog } = await supabase
+            .from('email_logs')
+            .select('order_id')
+            .eq('resend_email_id', resendEmailId)
+            .maybeSingle();
+          if (emailLog?.order_id) {
+            await supabase.from('orders').update({ status: 'email_failed' }).eq('id', emailLog.order_id);
+            console.log(`Order ${emailLog.order_id} marked as email_failed`);
+          }
+        }
         break;
       case 'email.delivery_delayed':
         updates.status = 'delayed';
