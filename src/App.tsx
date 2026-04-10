@@ -74,6 +74,7 @@ const App = () => (
             <Routes>
               {/* Storefront Routes */}
               <Route path="/" element={<EbookLandingPage />} />
+              <Route path="/download" element={<DownloadPage />} />
               {/* /lp/ebook is now database-driven via /lp/:slug */}
               <Route
                 path="/products"
