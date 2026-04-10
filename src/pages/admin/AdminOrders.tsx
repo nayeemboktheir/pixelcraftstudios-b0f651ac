@@ -148,7 +148,7 @@ export default function AdminOrders() {
     return match ? match[1].trim() : '';
   };
 
-  const defaultPdfLink = 'https://pixelcraftstudios.lovable.app/download?file=ai-prompt-mastery';
+  const defaultPdfLink = 'https://pixelcraftstudio.shop/download?file=ai-prompt-mastery';
 
   const openEmailDialog = (order: Order) => {
     setEmailOrder(order);
