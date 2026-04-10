@@ -90,7 +90,7 @@ const OrderConfirmationPage = () => {
 
     updatePaymentStatus();
 
-    const pdfDownloadUrl = 'https://nnykxuqznubhblqrkhrv.supabase.co/storage/v1/object/public/shop-assets/products/AI%20Prompt%20Mastery-compressed.pdf';
+    const pdfDownloadUrl = `${window.location.origin}/download?file=ai-prompt-mastery`;
     const productName = items.map(i => i.productName).join(', ') || 'AI Prompt Mastery (PDF)';
 
     supabase.functions.invoke('send-digital-delivery-email', {
