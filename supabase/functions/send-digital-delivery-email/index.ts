@@ -58,7 +58,7 @@ serve(async (req) => {
     console.log('Sending digital delivery email for:', body.order_number, 'to:', body.customer_email);
 
     const resend = new Resend(settingsMap.resend_api_key);
-    const shopName = settingsMap.shop_name || 'Our Store';
+    const shopName = settingsMap.shop_name || 'Pixelcraft Studio';
 
     const isManual = body.order_number === 'MANUAL' && body.custom_message;
 
