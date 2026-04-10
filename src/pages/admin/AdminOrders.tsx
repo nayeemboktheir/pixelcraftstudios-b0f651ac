@@ -800,15 +800,28 @@ export default function AdminOrders() {
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEmailDialog(order)}
-                        title="Send download email"
-                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                      >
-                        <Mail className="h-4 w-4" />
-                      </Button>
+                      {order.status === 'email_failed' ? (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => openEmailDialog(order)}
+                          title="Re-send download email"
+                          className="gap-1 bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          <Mail className="h-3 w-3" />
+                          Re-send
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEmailDialog(order)}
+                          title="Send download email"
+                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
