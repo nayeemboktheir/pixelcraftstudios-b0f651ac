@@ -70,40 +70,26 @@ const OrderConfirmationPage = () => {
   const customerEmail = state?.customerEmail;
   const hasSentEmailRef = useRef(false);
 
-  // 0) Update payment status to paid & send PDF email AFTER payment confirmation
+  // 0) Confirm payment & send delivery email via server-side edge function
   useEffect(() => {
     if (!orderNumber || !customerEmail || hasSentEmailRef.current) return;
     hasSentEmailRef.current = true;
 
-    // Update payment status to paid/completed
-    const updatePaymentStatus = async () => {
-      try {
-        const { error } = await supabase
-          .from('orders')
-          .update({ payment_status: 'paid', status: 'confirmed' })
-          .eq('order_number', orderNumber);
-        if (error) console.error('[Payment] Status update failed:', error);
-      } catch (err) {
-        console.error('[Payment] Status update error:', err);
-      }
-    };
-
-    updatePaymentStatus();
-
-    const pdfDownloadUrl = 'https://pixelcraftstudio.shop/download?file=ai-prompt-mastery';
     const productName = items.map(i => i.productName).join(', ') || 'AI Prompt Mastery (PDF)';
 
-    supabase.functions.invoke('send-digital-delivery-email', {
+    supabase.functions.invoke('confirm-payment', {
       body: {
         order_number: orderNumber,
-        customer_name: customerName || '',
         customer_email: customerEmail,
-        download_link: pdfDownloadUrl,
+        customer_name: customerName || '',
         product_name: productName,
         total: total || 0,
       },
+    }).then(({ data, error }) => {
+      if (error) console.error('[Payment] Confirm payment failed:', error);
+      else console.log('[Payment] Payment confirmed & email sent:', data);
     }).catch((err) => {
-      console.error('[Email] Auto delivery email failed:', err);
+      console.error('[Payment] Confirm payment error:', err);
     });
   }, [orderNumber, customerEmail, customerName, items, total]);
 
